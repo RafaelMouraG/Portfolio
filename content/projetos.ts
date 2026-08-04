@@ -10,7 +10,13 @@ export type Projeto = {
   // Preencher só em projeto de equipe. Renderizar como linha discreta no card
   // e no topo do case, com rótulo "Meu papel".
   papel?: string
-  links: { repo?: string; demo?: string }
+  // Screenshot real do projeto (arquivo em public/). Enquanto vazio, o card e
+  // o case usam a arte SVG do slug em components/CapaProjeto.
+  imagem?: { src: string; alt: string }
+  // Capturas exibidas em galeria na página de case (não no card). Ideal para
+  // screenshot de celular, que não cabe no formato 16:9 da capa.
+  capturas?: Array<{ src: string; alt: string; largura: number; altura: number }>
+  links: { repo?: string; demo?: string; video?: string }
   case: {
     problema: string
     abordagem: string
@@ -49,10 +55,21 @@ export const projetos: Projeto[] = [
     slug: 'biblioo',
     titulo: 'Biblioo',
     resumo:
-      'Rede social de leitura com web, mobile e API em stack de produção. Atuei no backend, em notificações assíncronas e testes de carga.',
+      'Rede social de leitura com web, mobile e API em stack de produção. Atuei no backend: módulo de usuários, notificações assíncronas, assistente de IA e testes de performance.',
     areas: ['dev'],
-    papel: 'Equipe de seis. Backend: notificações assíncronas, testes de carga e correção de cache.',
-    stack: ['Java 25', 'Spring Boot 4', 'RabbitMQ', 'Redis', 'MySQL', 'Neo4j', 'k6', 'Cloud Run'],
+    papel:
+      'Equipe de seis. Backend: módulo de usuários, notificações assíncronas, assistente de IA e testes de performance.',
+    stack: [
+      'Java 25',
+      'Spring Boot 4',
+      'RabbitMQ',
+      'Redis',
+      'OpenSearch',
+      'MySQL',
+      'FCM',
+      'k6',
+      'Cloud Run',
+    ],
     destaque: true,
     links: {
       repo: 'https://github.com/RafaelMouraG/biblioo',
@@ -60,13 +77,13 @@ export const projetos: Projeto[] = [
     },
     case: {
       problema:
-        'Uma notificação não pode sumir. Se o consumidor cair no meio do processamento, o usuário não pode simplesmente nunca receber o aviso, e o mesmo evento precisa chegar por SSE no web e por FCM no mobile sem que o produtor saiba quem está escutando.',
+        'Uma rede social de leitura precisa de mais backend do que parece: identidade com login social, um grafo de quem segue quem, busca, notificação que não pode sumir e, na visão do produto, um assistente que responde e executa ações dentro da plataforma. Minha frente cobriu quatro dessas coisas — usuários, notificações, o assistente de IA e a performance do conjunto — e cada uma tinha um tipo diferente de risco.',
       abordagem:
-        'Persistir a notificação primeiro e só depois fazer o fanout, usando topic exchange no RabbitMQ para que cada canal consuma o que lhe interessa sem acoplamento com a origem do evento. O sistema roda dentro de um monólito modular com arquitetura hexagonal em onze domínios.',
+        'O módulo de usuários saiu completo: autenticação JWT com registro, login, refresh e logout, login social com Google OAuth sobre Spring Security, sistema de follow e as integrações com OpenSearch, para busca, e Cloudinary, para imagens. As notificações persistem primeiro e só depois fazem fanout, com topic exchange no RabbitMQ entregando o mesmo evento por SSE no web e por FCM no mobile sem que o produtor saiba quem está escutando. O assistente de IA segue a mesma arquitetura hexagonal do resto do monólito modular: function calling para executar ações da plataforma a partir de linguagem natural, rate limiting, histórico de conversa persistido em Redis e guardrails contra alucinação.',
       decisoes:
-        'A ordem persistir e depois publicar foi deliberada: garante que a notificação exista no banco mesmo que todo o fanout falhe, e o reenvio vira um problema de reprocessamento, não de perda. Também troquei o cache de entidades JPA por DTOs depois de rastrear um bug de serialização no Redis causado por lazy loading, uma correção que virou regra para o resto do projeto. Na parte de qualidade, montei uma suíte k6 com 71 testes em oito domínios, nos perfis load, spike e stress, com os resultados em dashboards no Grafana.',
+        'Nas notificações, a ordem persistir e depois publicar foi deliberada: garante que a notificação exista no banco mesmo que todo o fanout falhe, e o reenvio vira um problema de reprocessamento, não de perda. No assistente, a decisão equivalente foi limitar o que ele pode afirmar ao que consegue executar: toda ação passa por function calling tipado, e o que o modelo não alcança por ferramenta ele não promete — o guardrail barato que corta a alucinação mais cara, a de inventar um estado da plataforma. Também troquei o cache de entidades JPA por DTOs depois de rastrear um bug de serialização no Redis causado por lazy loading, correção que virou regra para o resto do projeto. E a suíte k6, com 71 testes em oito domínios nos perfis load, spike e stress, não ficou só medindo: com Prometheus e Grafana apontando onde doía, os resultados voltaram para o código como otimização.',
       resultado:
-        'Sistema no ar em Cloud Run, com web na Vercel e app Flutter offline-first. O que eu faria diferente é rodar carga durante o desenvolvimento e não no fim: os gargalos que a suíte revelou teriam mudado decisões de modelagem se eu soubesse deles antes. Entrei como o membro menos experiente de uma equipe de seis, e foi onde tive contato mais próximo com decisão de arquitetura real.',
+        'Sistema no ar em Cloud Run, com web na Vercel e app Flutter offline-first. O que eu faria diferente é rodar carga durante o desenvolvimento e não no fim: os gargalos que a suíte revelou teriam mudado decisões de modelagem se eu soubesse deles antes. Entrei como o membro menos experiente de uma equipe de seis e saí como dono de três subsistemas e da suíte de performance — foi onde tive contato mais próximo com decisão de arquitetura real.',
     },
   },
   {
@@ -78,6 +95,14 @@ export const projetos: Projeto[] = [
     papel: 'Equipe de seis, cliente real. Backend: camada de comunicação e integrações externas.',
     stack: ['Java 21', 'Spring Boot 4', 'MySQL', 'Apache PDFBox', 'API Sicoob', 'Focus NFe', 'Railway'],
     destaque: true,
+    capturas: [
+      {
+        src: '/hortifruti-banner.png',
+        alt: 'Marca do Hortifruti Santa Luzia',
+        largura: 1600,
+        altura: 400,
+      },
+    ],
     links: {
       repo: 'https://github.com/marcosffp/hortifruti',
       // CONFERIR qual URL está viva antes de publicar.
@@ -88,7 +113,7 @@ export const projetos: Projeto[] = [
       problema:
         'O cliente fazia na mão o que o sistema precisava automatizar: gerar boleto, conferir extrato contra pagamento recebido e emitir nota. A conciliação bancária era a parte mais cara, porque o extrato chega em PDF e cada banco monta o seu de um jeito diferente.',
       abordagem:
-        'Extração e categorização das transações direto do PDF do extrato, com um parser que normaliza Sicoob e Banco do Brasil para um formato interno único, em vez de duplicar a lógica de conciliação por instituição. Em volta disso, integração com a API bancária via mTLS com certificado digital, emissão fiscal pela Focus NFe e notificação por e-mail e WhatsApp.',
+        'Extração e categorização das transações direto do PDF do extrato, com um parser que normaliza Sicoob e Banco do Brasil para um formato interno único, em vez de duplicar a lógica de conciliação por instituição. Em volta disso, integração com a API bancária via mTLS com certificado digital, emissão fiscal pela Focus NFe e um chatbot de WhatsApp Business por onde o cliente pede e recebe boleto, nota fiscal e o status do pedido, além das notificações por e-mail.',
       decisoes:
         'A escolha de normalizar na entrada, e não espalhar condicional por banco no domínio, foi o que manteve o código sustentável quando entrou a segunda instituição. Integração bancária com certificado digital tem pouca margem para erro e documentação escassa, então cada chamada precisou de validação explícita. Hoje eu iria além: trataria toda integração externa como fronteira, com camada de anticorrupção e contrato próprio, porque o formato de cada fornecedor ainda vaza mais do que deveria para dentro do sistema. E colocaria retry com fila nas chamadas externas, já que API de banco cai e na época isso derrubava o fluxo inteiro.',
       resultado:
@@ -103,14 +128,29 @@ export const projetos: Projeto[] = [
     areas: ['dev'],
     stack: ['Python', 'FastAPI', 'PostgreSQL', 'RabbitMQ', 'Alembic', 'pytest', 'Docker', 'Flutter'],
     destaque: true,
+    capturas: [
+      {
+        src: '/fieldflow-login.png',
+        alt: 'Tela de login do app FieldFlow, com seletor de servidor da API',
+        largura: 1206,
+        altura: 2622,
+      },
+      {
+        src: '/fieldflow-home.png',
+        alt: 'Tela inicial do produtor no FieldFlow, com contadores de solicitações aguardando, em andamento e concluídas',
+        largura: 1206,
+        altura: 2622,
+      },
+    ],
     links: {
       repo: 'https://github.com/RafaelMouraG/FieldFLow',
+      video: 'https://youtu.be/SOb5KJmm8G0',
     },
     case: {
       problema:
         'Fluxo de contratação entre produtor e prestador não pode perder mensagem nem executar a mesma ação duas vezes. Entrega assíncrona é at-least-once por natureza, o que significa que o consumidor vai receber evento repetido, e o sistema precisa aguentar isso sem duplicar contratação.',
       abordagem:
-        'Idempotência por event_id no consumidor, Dead-Letter Queue para reprocessar o que falhou, e topic exchange no RabbitMQ separando os fluxos. A organização segue Clean Architecture por bounded context, com o app Flutter consumindo a API.',
+        'Idempotência por event_id no consumidor, Dead-Letter Queue para reprocessar o que falhou, e topic exchange no RabbitMQ distribuindo os fluxos entre dois workers consumidores independentes da API. A organização segue Clean Architecture por bounded context, com o app Flutter consumindo a API.',
       decisoes:
         'Coloquei a garantia no consumidor e não no broker, porque nenhuma configuração de fila resolve o problema de aplicação: o consumidor precisa saber que já viu aquele evento. A DLQ existe para transformar falha em fila de trabalho, e não em log perdido. A dívida conhecida do projeto é a ausência de outbox pattern, que hoje deixa a gravação no banco e a publicação do evento sem garantia de consistência entre as duas.',
       resultado:

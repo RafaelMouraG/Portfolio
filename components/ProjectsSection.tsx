@@ -6,7 +6,9 @@ import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { projetos } from "@/content/projetos";
 import { perfil } from "@/content/perfil";
 import { AreaFilter, type FiltroArea } from "./AreaFilter";
+import { AreaFundo } from "./AreaFundo";
 import { ProjectCard } from "./ProjectCard";
+import { SectionTitle } from "./SectionTitle";
 
 const destaques = projetos.filter((projeto) => projeto.destaque);
 
@@ -50,9 +52,9 @@ export function ProjectsSection() {
   return (
     // Só a variável --accent muda com o filtro; o resto da seção fica neutro.
     <section aria-labelledby="projetos-titulo" data-accent={filtro} className="py-12">
-      <h2 id="projetos-titulo" className="font-mono text-sm text-muted">
-        projetos
-      </h2>
+      {/* O fundo da página acompanha o filtro: verde em dev, amarelo em dados */}
+      <AreaFundo area={filtro === "todos" ? undefined : filtro} />
+      <SectionTitle id="projetos-titulo">projetos</SectionTitle>
 
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <AreaFilter valor={filtro} aoMudar={mudarFiltro} contagens={contagensEquilibradas} />
@@ -65,7 +67,7 @@ export function ProjectsSection() {
       <MotionConfig reducedMotion="user">
         <motion.ul layout className="mt-8 grid gap-4 sm:grid-cols-2">
           <AnimatePresence mode="popLayout" initial={false}>
-            {visiveis.map((projeto) => (
+            {visiveis.map((projeto, indice) => (
               <motion.li
                 key={projeto.slug}
                 layout
@@ -74,7 +76,7 @@ export function ProjectsSection() {
                 exit={{ opacity: 0, scale: 0.96 }}
                 transition={{ duration: 0.28 }}
               >
-                <ProjectCard projeto={projeto} />
+                <ProjectCard projeto={projeto} indice={indice} />
               </motion.li>
             ))}
           </AnimatePresence>
@@ -83,7 +85,12 @@ export function ProjectsSection() {
 
       {perfil.outrosProjetos.length > 0 && (
         <div className="mt-12">
-          <h3 className="font-mono text-sm text-muted">outros projetos</h3>
+          <h3 className="flex items-center gap-3 font-mono text-sm text-muted">
+            <span aria-hidden className="accent-transition font-semibold text-accent">
+              {"//"}
+            </span>
+            outros projetos
+          </h3>
           <ul className="mt-4 space-y-3">
             {perfil.outrosProjetos.map(({ nome, descricao, link }) => (
               <li key={nome} className="max-w-2xl text-sm leading-relaxed">

@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { projetos } from "@/content/projetos";
-
-const rotuloArea = {
-  dados: "Dados e IA",
-  dev: "Dev",
-} as const;
+import { AreaFundo } from "@/components/AreaFundo";
+import { AreaTag } from "@/components/AreaTag";
+import { CapaProjeto } from "@/components/CapaProjeto";
 
 export function generateStaticParams() {
   return projetos.map(({ slug }) => ({ slug }));
@@ -39,12 +38,23 @@ export default async function PaginaDeCase({
   ];
 
   const linksExternos = [
-    { label: "Repositório", href: projeto.links.repo },
-    { label: "Ver no ar", href: projeto.links.demo },
-  ].filter((link): link is { label: string; href: string } => Boolean(link.href));
+    { label: "Ver no ar", href: projeto.links.demo, primario: true },
+    // Sem demo no ar, o vídeo assume o posto de link principal
+    { label: "Demo em vídeo", href: projeto.links.video, primario: !projeto.links.demo },
+    { label: "Repositório", href: projeto.links.repo, primario: false },
+  ].filter((link): link is { label: string; href: string; primario: boolean } =>
+    Boolean(link.href),
+  );
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-5 py-16 sm:px-8 sm:py-20">
+    // A página inteira veste a cor da área do projeto: amarelo em case de
+    // dados, verde em case de dev. É a continuação do card que trouxe até aqui.
+    <main
+      data-accent={projeto.areas[0]}
+      className="mx-auto w-full max-w-3xl px-5 py-16 sm:px-8 sm:py-20"
+    >
+      {/* O fundo também veste a cor da área do case */}
+      <AreaFundo area={projeto.areas[0]} />
       <Link
         href="/"
         className="accent-transition font-mono text-sm text-muted hover:text-accent"
@@ -53,11 +63,9 @@ export default async function PaginaDeCase({
       </Link>
 
       <header className="mt-10">
-        <div className="flex flex-wrap gap-2 font-mono text-xs text-muted">
+        <div className="flex flex-wrap gap-2">
           {projeto.areas.map((area) => (
-            <span key={area} className="rounded-full border border-border px-2 py-0.5">
-              {rotuloArea[area]}
-            </span>
+            <AreaTag key={area} area={area} />
           ))}
         </div>
         <h1 className="mt-4 font-display text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
@@ -72,18 +80,29 @@ export default async function PaginaDeCase({
             <span className="text-muted">{projeto.papel}</span>
           </p>
         )}
-        <p className="mt-4 font-mono text-xs text-muted">
-          {projeto.stack.join(" · ")}
-        </p>
+        <ul className="mt-4 flex flex-wrap gap-1.5">
+          {projeto.stack.map((item) => (
+            <li
+              key={item}
+              className="rounded-md border border-border bg-surface px-2 py-0.5 font-mono text-xs text-muted"
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
         {linksExternos.length > 0 && (
           <ul className="mt-6 flex flex-wrap gap-3">
-            {linksExternos.map(({ label, href }) => (
+            {linksExternos.map(({ label, href, primario }) => (
               <li key={label}>
                 <a
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="accent-transition inline-flex items-center rounded-full border border-border px-4 py-2 text-sm font-medium hover:border-accent hover:text-accent"
+                  className={
+                    primario
+                      ? "accent-transition inline-flex items-center rounded-full border border-accent bg-accent px-4 py-2 text-sm font-medium text-background hover:bg-accent/85"
+                      : "accent-transition inline-flex items-center rounded-full border border-border px-4 py-2 text-sm font-medium hover:border-accent hover:text-accent"
+                  }
                 >
                   {label}
                 </a>
@@ -93,10 +112,50 @@ export default async function PaginaDeCase({
         )}
       </header>
 
+      <div className="relative mt-10 aspect-[16/9] overflow-hidden rounded-xl border border-border bg-accent/[0.04]">
+        <CapaProjeto projeto={projeto} />
+      </div>
+
+      {/* Capturas reais em galeria: retrato (celular) lado a lado com altura
+          fixa, paisagem ocupando a largura toda */}
+      {projeto.capturas && projeto.capturas.length > 0 && (
+        <section aria-label="Capturas do projeto" className="mt-6">
+          <ul className="flex flex-wrap gap-4">
+            {projeto.capturas.map(({ src, alt, largura, altura }) => (
+              <li
+                key={src}
+                className={
+                  altura > largura
+                    ? "overflow-hidden rounded-xl border border-border bg-surface"
+                    : "w-full overflow-hidden rounded-xl border border-border bg-surface"
+                }
+              >
+                <Image
+                  src={src}
+                  alt={alt}
+                  width={largura}
+                  height={altura}
+                  className={altura > largura ? "h-96 w-auto" : "h-auto w-full"}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <article className="mt-12 space-y-10">
-        {secoes.map(({ titulo, texto }) => (
+        {secoes.map(({ titulo, texto }, indice) => (
           <section key={titulo} aria-label={titulo}>
-            <h2 className="font-mono text-sm text-muted">{titulo.toLowerCase()}</h2>
+            <h2 className="flex items-center gap-3 font-mono text-sm text-muted">
+              <span aria-hidden className="font-semibold text-accent">
+                {String(indice + 1).padStart(2, "0")}
+              </span>
+              {titulo.toLowerCase()}
+              <span
+                aria-hidden
+                className="h-px min-w-8 grow bg-gradient-to-r from-border to-transparent"
+              />
+            </h2>
             <p className="mt-3 leading-relaxed">{texto}</p>
           </section>
         ))}

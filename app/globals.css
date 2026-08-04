@@ -1,9 +1,12 @@
 @import "tailwindcss";
 
 /*
- * Tokens de cor. A regra do briefing: o accent é UMA variável que muda
- * conforme o filtro de área selecionado; texto, fundo e bordas ficam neutros.
- * Cada accent tem par claro/escuro com contraste AA sobre o fundo correspondente.
+ * Tokens de cor. A regra do briefing evoluiu: --accent continua sendo UMA
+ * variável trocada pelo filtro de área, mas as cores de área agora também
+ * aparecem fora do filtro — tags, cards e o fundo usam amarelo (dados) e
+ * verde (dev) como identidade permanente do site, que é justamente a
+ * tese "as duas áreas se encontram". Cada accent tem par claro/escuro com
+ * contraste AA sobre o fundo correspondente.
  */
 :root {
   --background: #fcfcfd;
@@ -12,10 +15,20 @@
   --muted: #55555e;
   --border: #e4e4e9;
 
-  --accent-neutral: #2563eb; /* azul    — Todos */
-  --accent-dados: #7c3aed;   /* violeta — Dados e IA */
-  --accent-dev: #0f766e;     /* teal    — Dev */
+  /* No tema claro, o amarelo precisa escurecer para dourado e o verde
+   * para esmeralda-700, senão texto pequeno no accent não passa de AA. */
+  --accent-neutral: #2563eb; /* azul      — Todos */
+  --accent-dados: #a16207;   /* âmbar     — Dados e IA */
+  --accent-dev: #047857;     /* esmeralda — Dev */
   --accent: var(--accent-neutral);
+
+  /* Os brilhos do fundo usam a versão viva da cor (não a de texto),
+   * porque wash a 10% de um tom escurecido lê como marrom. */
+  --glow-cor-dados: #eab308;
+  --glow-cor-dev: #10b981;
+  --glow-dados: 12%;
+  --glow-dev: 9%;
+  --grid-line: color-mix(in srgb, var(--foreground) 6%, transparent);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -27,12 +40,19 @@
     --border: #2a2a31;
 
     --accent-neutral: #60a5fa;
-    --accent-dados: #a78bfa;
-    --accent-dev: #2dd4bf;
+    --accent-dados: #facc15;
+    --accent-dev: #34d399;
+
+    --glow-cor-dados: #facc15;
+    --glow-cor-dev: #34d399;
+    --glow-dados: 12%;
+    --glow-dev: 10%;
+    --grid-line: color-mix(in srgb, var(--foreground) 7%, transparent);
   }
 }
 
-/* O filtro seta data-accent no contêiner da seção; só a variável troca. */
+/* O accent local troca via data-accent: o filtro seta no contêiner da seção,
+ * e tags/cards setam no próprio elemento para vestir a cor da sua área. */
 [data-accent="dados"] {
   --accent: var(--accent-dados);
 }
@@ -48,6 +68,9 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-accent: var(--accent);
+  --color-accent-dados: var(--accent-dados);
+  --color-accent-dev: var(--accent-dev);
+  --color-accent-neutral: var(--accent-neutral);
 
   --font-sans: var(--font-geist-sans);
   --font-display: var(--font-space-grotesk);
@@ -55,9 +78,73 @@
 }
 
 body {
+  position: relative;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/*
+ * Abertura da página: grade fina que desaparece antes da dobra (aqui) e
+ * dois brilhos radiais — amarelo à esquerda, verde à direita, as duas
+ * áreas se encontrando no meio — em divs próprios (.brilho-area, no layout),
+ * porque cada brilho reage ao filtro de área com transição de opacidade.
+ */
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 720px;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, black 30%, transparent);
+}
+
+.brilho-area {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 720px;
+  z-index: -1;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, black 30%, transparent);
+  scale: 1;
+  transform-origin: top;
+  transition:
+    opacity 700ms ease,
+    scale 900ms ease;
+}
+
+.brilho-area--dados {
+  background: radial-gradient(
+    580px 420px at 12% -6%,
+    color-mix(in srgb, var(--glow-cor-dados) var(--glow-dados), transparent),
+    transparent 70%
+  );
+}
+
+.brilho-area--dev {
+  background: radial-gradient(
+    680px 460px at 88% -8%,
+    color-mix(in srgb, var(--glow-cor-dev) var(--glow-dev), transparent),
+    transparent 70%
+  );
+}
+
+/* O componente AreaFundo seta data-area-ativa no <html> conforme o filtro
+ * (ou a área do case aberto): o brilho da outra área quase apaga e o da
+ * área ativa espalha, então o fundo inteiro responde à seleção. */
+:root[data-area-ativa="dados"] .brilho-area--dados,
+:root[data-area-ativa="dev"] .brilho-area--dev {
+  scale: 1.6;
+}
+
+:root[data-area-ativa="dados"] .brilho-area--dev,
+:root[data-area-ativa="dev"] .brilho-area--dados {
+  opacity: 0.12;
 }
 
 :focus-visible {
@@ -69,6 +156,19 @@ body {
   background: color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
+/* Gradiente-assinatura: amarelo → azul → verde, a tese em uma linha. */
+.texto-gradiente {
+  background-image: linear-gradient(
+    100deg,
+    var(--accent-dados),
+    var(--accent-neutral) 55%,
+    var(--accent-dev)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 /*
  * A troca de accent é percebida como um fade de 280ms nos elementos que a
  * consomem, não como uma reformulação da seção.
@@ -77,11 +177,38 @@ body {
   transition:
     color 280ms ease,
     background-color 280ms ease,
-    border-color 280ms ease;
+    border-color 280ms ease,
+    box-shadow 280ms ease;
+}
+
+/* Pulso do indicador de disponibilidade no Hero */
+@keyframes pulso-disponivel {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.pulso-disponivel {
+  animation: pulso-disponivel 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .accent-transition {
     transition: none;
+  }
+
+  .brilho-area {
+    transition: none;
+  }
+
+  .pulso-disponivel {
+    animation: none;
+    display: none;
   }
 }

@@ -39,7 +39,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {/* Brilhos do topo: cada área tem o seu para poder reagir ao filtro */}
+        <div aria-hidden className="brilho-area brilho-area--dados" />
+        <div aria-hidden className="brilho-area brilho-area--dev" />
+        {children}
+      </body>
     </html>
   );
 }

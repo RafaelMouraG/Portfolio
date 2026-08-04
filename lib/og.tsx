@@ -20,7 +20,7 @@ export function ogImage(titulo: string, subtitulo: string) {
         }}
       >
         <div style={{ display: "flex", gap: 12 }}>
-          {["#a78bfa", "#60a5fa", "#2dd4bf"].map((cor) => (
+          {["#facc15", "#60a5fa", "#34d399"].map((cor) => (
             <div
               key={cor}
               style={{
