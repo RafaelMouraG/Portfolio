@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+/*
+ * Tokens de cor. A regra do briefing: o accent é UMA variável que muda
+ * conforme o filtro de área selecionado; texto, fundo e bordas ficam neutros.
+ * Cada accent tem par claro/escuro com contraste AA sobre o fundo correspondente.
+ */
+:root {
+  --background: #fcfcfd;
+  --surface: #ffffff;
+  --foreground: #1a1a1f;
+  --muted: #55555e;
+  --border: #e4e4e9;
+
+  --accent-neutral: #2563eb; /* azul    — Todos */
+  --accent-dados: #7c3aed;   /* violeta — Dados e IA */
+  --accent-dev: #0f766e;     /* teal    — Dev */
+  --accent: var(--accent-neutral);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0c0c10;
+    --surface: #141419;
+    --foreground: #ececf1;
+    --muted: #a3a3ad;
+    --border: #2a2a31;
+
+    --accent-neutral: #60a5fa;
+    --accent-dados: #a78bfa;
+    --accent-dev: #2dd4bf;
+  }
+}
+
+/* O filtro seta data-accent no contêiner da seção; só a variável troca. */
+[data-accent="dados"] {
+  --accent: var(--accent-dados);
+}
+
+[data-accent="dev"] {
+  --accent: var(--accent-dev);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+
+  --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-space-grotesk);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+/*
+ * A troca de accent é percebida como um fade de 280ms nos elementos que a
+ * consomem, não como uma reformulação da seção.
+ */
+.accent-transition {
+  transition:
+    color 280ms ease,
+    background-color 280ms ease,
+    border-color 280ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accent-transition {
+    transition: none;
+  }
+}
