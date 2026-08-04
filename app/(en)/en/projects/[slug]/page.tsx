@@ -1,33 +1,33 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { projetos } from "@/content/projetos";
+import { projetosEn } from "@/content/projetos.en";
 import { PaginaCase } from "@/components/PaginaCase";
 
 export function generateStaticParams() {
-  return projetos.map(({ slug }) => ({ slug }));
+  return projetosEn.map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
-}: PageProps<"/projetos/[slug]">): Promise<Metadata> {
+}: PageProps<"/en/projects/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const projeto = projetos.find((p) => p.slug === slug);
+  const projeto = projetosEn.find((p) => p.slug === slug);
   if (!projeto) return {};
   return {
     title: projeto.titulo,
     description: projeto.resumo,
     alternates: {
-      canonical: `/projetos/${slug}`,
+      canonical: `/en/projects/${slug}`,
       languages: { "pt-BR": `/projetos/${slug}`, en: `/en/projects/${slug}` },
     },
   };
 }
 
-export default async function PaginaDeCase({
+export default async function CasePageEn({
   params,
-}: PageProps<"/projetos/[slug]">) {
+}: PageProps<"/en/projects/[slug]">) {
   const { slug } = await params;
-  const projeto = projetos.find((p) => p.slug === slug);
+  const projeto = projetosEn.find((p) => p.slug === slug);
   if (!projeto) notFound();
-  return <PaginaCase projeto={projeto} idioma="pt" />;
+  return <PaginaCase projeto={projeto} idioma="en" />;
 }
