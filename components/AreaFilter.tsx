@@ -3,18 +3,16 @@
 import { useRef } from "react";
 import { motion } from "framer-motion";
 import type { Area } from "@/content/projetos";
+import { textos, type Idioma } from "@/lib/i18n";
 
 export type FiltroArea = Area | "todos";
 
-const opcoes: ReadonlyArray<{ valor: FiltroArea; rotulo: string }> = [
-  { valor: "dados", rotulo: "Dados e IA" },
-  { valor: "todos", rotulo: "Todos" },
-  { valor: "dev", rotulo: "Dev" },
-];
+const ordem: ReadonlyArray<FiltroArea> = ["dados", "todos", "dev"];
 
 type Props = {
   valor: FiltroArea;
   aoMudar: (valor: FiltroArea) => void;
+  idioma: Idioma;
   // undefined esconde os contadores (regra: só aparecem se equilibrados)
   contagens?: Record<FiltroArea, number>;
 };
@@ -25,8 +23,9 @@ type Props = {
  * O estado ativo é indicado por peso de fonte e pelo anel deslizante,
  * nunca só por cor.
  */
-export function AreaFilter({ valor, aoMudar, contagens }: Props) {
+export function AreaFilter({ valor, aoMudar, idioma, contagens }: Props) {
   const botoes = useRef<Map<FiltroArea, HTMLButtonElement | null>>(new Map());
+  const t = textos[idioma].filtro;
 
   function selecionar(proximo: FiltroArea) {
     aoMudar(proximo);
@@ -34,33 +33,33 @@ export function AreaFilter({ valor, aoMudar, contagens }: Props) {
   }
 
   function aoTeclar(evento: React.KeyboardEvent) {
-    const atual = opcoes.findIndex((opcao) => opcao.valor === valor);
+    const atual = ordem.indexOf(valor);
     let destino: number | null = null;
 
     if (evento.key === "ArrowRight" || evento.key === "ArrowDown") {
-      destino = (atual + 1) % opcoes.length;
+      destino = (atual + 1) % ordem.length;
     } else if (evento.key === "ArrowLeft" || evento.key === "ArrowUp") {
-      destino = (atual - 1 + opcoes.length) % opcoes.length;
+      destino = (atual - 1 + ordem.length) % ordem.length;
     } else if (evento.key === "Home") {
       destino = 0;
     } else if (evento.key === "End") {
-      destino = opcoes.length - 1;
+      destino = ordem.length - 1;
     }
 
     if (destino !== null) {
       evento.preventDefault();
-      selecionar(opcoes[destino].valor);
+      selecionar(ordem[destino]);
     }
   }
 
   return (
     <div
       role="radiogroup"
-      aria-label="Filtrar projetos por área"
+      aria-label={t.aria}
       onKeyDown={aoTeclar}
       className="inline-flex max-w-full rounded-full border border-border bg-surface p-1"
     >
-      {opcoes.map(({ valor: opcao, rotulo }) => {
+      {ordem.map((opcao) => {
         const ativo = opcao === valor;
         return (
           <button
@@ -88,7 +87,7 @@ export function AreaFilter({ valor, aoMudar, contagens }: Props) {
                 ativo ? "font-semibold text-accent" : "font-normal text-foreground"
               }`}
             >
-              {rotulo}
+              {t.rotulos[opcao]}
               {contagens && (
                 <span className="ml-1.5 font-mono text-xs text-muted">
                   {contagens[opcao]}

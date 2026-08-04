@@ -1,17 +1,27 @@
 import Link from "next/link";
 import type { Projeto } from "@/content/projetos";
+import { caminhoDoCase, textos, type Idioma } from "@/lib/i18n";
 import { AreaTag } from "./AreaTag";
 import { CapaProjeto } from "./CapaProjeto";
 
 /*
  * O card veste a cor da própria área (data-accent no Link): título, borda e
- * sombra de hover ficam amarelas em projeto de dados e vermelhas em projeto de dev,
+ * sombra de hover ficam amarelas em projeto de dados e verdes em projeto de dev,
  * mesmo com o filtro em "Todos" — é o que dá cor à grade inteira.
  */
-export function ProjectCard({ projeto, indice }: { projeto: Projeto; indice: number }) {
+export function ProjectCard({
+  projeto,
+  indice,
+  idioma,
+}: {
+  projeto: Projeto;
+  indice: number;
+  idioma: Idioma;
+}) {
+  const t = textos[idioma].projetos;
   return (
     <Link
-      href={`/projetos/${projeto.slug}`}
+      href={caminhoDoCase(idioma, projeto.slug)}
       data-accent={projeto.areas[0]}
       className="accent-transition group flex h-full flex-col rounded-xl border border-border bg-surface p-6 hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-[0_12px_32px_-16px] hover:shadow-accent/40 motion-reduce:hover:translate-y-0"
     >
@@ -21,7 +31,7 @@ export function ProjectCard({ projeto, indice }: { projeto: Projeto; indice: num
       <div className="flex items-center justify-between gap-2">
         <div className="flex flex-wrap gap-2">
           {projeto.areas.map((area) => (
-            <AreaTag key={area} area={area} />
+            <AreaTag key={area} area={area} idioma={idioma} />
           ))}
         </div>
         <span aria-hidden className="font-mono text-xs text-accent/70">
@@ -34,7 +44,7 @@ export function ProjectCard({ projeto, indice }: { projeto: Projeto; indice: num
       <p className="mt-2 grow text-muted leading-relaxed">{projeto.resumo}</p>
       {projeto.papel && (
         <p className="mt-3 text-sm text-muted">
-          <span className="font-medium text-foreground">Meu papel:</span>{" "}
+          <span className="font-medium text-foreground">{t.meuPapel}</span>{" "}
           {projeto.papel}
         </p>
       )}
@@ -44,7 +54,7 @@ export function ProjectCard({ projeto, indice }: { projeto: Projeto; indice: num
           aria-hidden
           className="accent-transition shrink-0 font-mono text-xs text-accent opacity-0 group-hover:opacity-100 motion-reduce:opacity-100"
         >
-          ver case →
+          {t.verCase}
         </span>
       </div>
     </Link>

@@ -1,10 +1,11 @@
-import { perfil } from "@/content/perfil";
+import { conteudo, textos, type Idioma } from "@/lib/i18n";
 import { SectionTitle } from "./SectionTitle";
 
-export function Sobre() {
+export function Sobre({ idioma }: { idioma: Idioma }) {
+  const { perfil } = conteudo[idioma];
   return (
     <section aria-labelledby="sobre-titulo" className="py-12">
-      <SectionTitle id="sobre-titulo">sobre</SectionTitle>
+      <SectionTitle id="sobre-titulo">{textos[idioma].sobre}</SectionTitle>
       <div className="relative mt-6 max-w-2xl pl-5 sm:pl-6">
         {/* Barra amarelo → verde: as duas áreas costurando o texto */}
         <span

@@ -1,10 +1,12 @@
-import { perfil } from "@/content/perfil";
+import { conteudo, textos, type Idioma } from "@/lib/i18n";
 import { SectionTitle } from "./SectionTitle";
 
-export function Contato() {
+export function Contato({ idioma }: { idioma: Idioma }) {
+  const { perfil } = conteudo[idioma];
+  const t = textos[idioma].contato;
   return (
     <section aria-labelledby="contato-titulo" className="py-12 pb-10">
-      <SectionTitle id="contato-titulo">contato</SectionTitle>
+      <SectionTitle id="contato-titulo">{t.titulo}</SectionTitle>
       <p className="mt-6">
         {/* O e-mail carrega o gradiente-assinatura: amarelo → azul → verde */}
         <a
@@ -15,7 +17,7 @@ export function Contato() {
         </a>
       </p>
       <p className="mt-4 max-w-2xl text-muted">
-        Respondo rápido. O currículo em PDF está em três versões:{" "}
+        {t.curriculos}{" "}
         {perfil.curriculos.map(({ rotulo, href }, i) => (
           <span key={href}>
             {i > 0 && " · "}
@@ -39,14 +41,14 @@ export function Contato() {
           <span className="size-2 rounded-full bg-accent-dev" />
         </span>
         <span>
-          feito por mim, em Next.js —{" "}
+          {t.feitoPor}{" "}
           <a
             href={perfil.links.github}
             target="_blank"
             rel="noopener noreferrer"
             className="accent-transition underline decoration-border underline-offset-4 hover:text-accent hover:decoration-accent"
           >
-            o código está no GitHub
+            {t.codigoNoGitHub}
           </a>
         </span>
       </footer>

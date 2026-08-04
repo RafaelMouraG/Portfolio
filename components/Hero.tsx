@@ -1,27 +1,37 @@
-import { perfil } from "@/content/perfil";
+import { conteudo, textos, type Idioma } from "@/lib/i18n";
+import { SeletorIdioma } from "./SeletorIdioma";
 
-// O Hero mostra só o currículo principal; as três versões ficam no Contato.
-const cvPrincipal =
-  perfil.curriculos.find(({ principal }) => principal) ?? perfil.curriculos[0];
+/*
+ * O Hero mostra só o currículo principal do idioma (na home en, o résumé em
+ * inglês); as três versões ficam no Contato.
+ */
+export function Hero({ idioma, destinoIdioma }: { idioma: Idioma; destinoIdioma: string }) {
+  const { perfil } = conteudo[idioma];
+  const t = textos[idioma].hero;
 
-const contatos = [
-  { label: "Currículo (PDF)", href: cvPrincipal?.href, externo: true, primario: true },
-  { label: "GitHub", href: perfil.links.github, externo: true, primario: false },
-  { label: "LinkedIn", href: perfil.links.linkedin, externo: true, primario: false },
-  { label: "E-mail", href: `mailto:${perfil.links.email}`, externo: false, primario: false },
-  // Link com URL vazia no perfil (ex.: LinkedIn ainda não preenchido) não aparece
-].filter(({ href }) => href && href !== "mailto:");
+  const cvPrincipal =
+    perfil.curriculos.find(({ principal }) => principal) ?? perfil.curriculos[0];
 
-export function Hero() {
+  const contatos = [
+    { label: t.curriculo, href: cvPrincipal?.href, externo: true, primario: true },
+    { label: "GitHub", href: perfil.links.github, externo: true, primario: false },
+    { label: "LinkedIn", href: perfil.links.linkedin, externo: true, primario: false },
+    { label: t.email, href: `mailto:${perfil.links.email}`, externo: false, primario: false },
+    // Link com URL vazia no perfil não aparece
+  ].filter(({ href }) => href && href !== "mailto:");
+
   return (
     <header className="pt-16 pb-16 sm:pt-24">
-      <p className="inline-flex items-center gap-2.5 rounded-full border border-accent/25 bg-accent/10 px-3.5 py-1.5 font-mono text-xs text-accent">
-        <span aria-hidden className="relative flex size-2">
-          <span className="pulso-disponivel absolute inline-flex size-full rounded-full bg-accent" />
-          <span className="relative inline-flex size-2 rounded-full bg-accent" />
-        </span>
-        {perfil.disponibilidade}
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="inline-flex items-center gap-2.5 rounded-full border border-accent/25 bg-accent/10 px-3.5 py-1.5 font-mono text-xs text-accent">
+          <span aria-hidden className="relative flex size-2">
+            <span className="pulso-disponivel absolute inline-flex size-full rounded-full bg-accent" />
+            <span className="relative inline-flex size-2 rounded-full bg-accent" />
+          </span>
+          {perfil.disponibilidade}
+        </p>
+        <SeletorIdioma idioma={idioma} destino={destinoIdioma} />
+      </div>
 
       <p className="mt-8 font-mono text-sm text-muted">{perfil.nome}</p>
       <h1 className="mt-4 max-w-3xl font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
@@ -50,7 +60,7 @@ export function Hero() {
         ))}
       </ul>
 
-      <nav aria-label="Contato e currículo" className="mt-10">
+      <nav aria-label={t.ariaNav} className="mt-10">
         <ul className="flex flex-wrap gap-3">
           {contatos.map(({ label, href, externo, primario }) => (
             <li key={label}>
