@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import { perfil } from "@/content/perfil";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,8 +20,17 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: `${perfil.nome} — Dados, IA e Desenvolvimento`,
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${perfil.nome} — Dados, IA e Desenvolvimento`,
+    template: `%s — ${perfil.nome}`,
+  },
   description: perfil.posicionamento,
+  openGraph: {
+    siteName: perfil.nome,
+    locale: "pt_BR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
