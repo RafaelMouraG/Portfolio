@@ -1,4 +1,21 @@
-export const perfil = {
+import type { Area } from './projetos'
+
+// A mesma forma vale para os dois idiomas: perfil.ts (pt) e perfil.en.ts
+// declaram este tipo, e o compilador acusa se as estruturas divergirem.
+export type Perfil = {
+  nome: string
+  posicionamento: string
+  posicionamentoRico: Array<{ texto: string; area?: Area }>
+  disponibilidade: string
+  sobre: string[]
+  techsPrincipais: string[]
+  links: { github: string; linkedin: string; email: string }
+  curriculos: Array<{ rotulo: string; href: string; principal: boolean }>
+  stack: Array<{ grupo: string; area?: Area; itens: string[] }>
+  outrosProjetos: Array<{ nome: string; descricao: string; link: string }>
+}
+
+export const perfil: Perfil = {
   nome: 'Rafael Ganascini de Moura',
 
   posicionamento:
