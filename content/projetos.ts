@@ -1,129 +1,155 @@
-export type Area = "dados" | "dev";
+export type Area = 'dados' | 'dev'
 
 export type Projeto = {
-  slug: string;
-  titulo: string;
-  resumo: string;
-  areas: Area[];
-  stack: string[];
-  destaque: boolean;
-  links: {
-    repo?: string;
-    demo?: string;
-  };
+  slug: string
+  titulo: string
+  resumo: string
+  areas: Area[]
+  stack: string[]
+  destaque: boolean
+  // Preencher só em projeto de equipe. Renderizar como linha discreta no card
+  // e no topo do case, com rótulo "Meu papel".
+  papel?: string
+  links: { repo?: string; demo?: string }
   case: {
-    problema: string;
-    abordagem: string;
-    decisoes: string;
-    resultado: string;
-  };
-};
+    problema: string
+    abordagem: string
+    decisoes: string
+    resultado: string
+  }
+}
 
-// [PREENCHER] projetos reais — os quatro abaixo são exemplos realistas de
-// estrutura e tom, na composição alvo: 1 dev, 1 dados, 2 híbridos.
 export const projetos: Projeto[] = [
   {
-    slug: "radar-imoveis",
-    titulo: "Radar de Imóveis",
+    slug: 'atlasleaf',
+    titulo: 'AtlasLeaf',
     resumo:
-      "Coleta diária de anúncios, modelo de precificação e app que mostra imóveis abaixo do preço de mercado.",
-    areas: ["dados", "dev"],
-    stack: ["Python", "scikit-learn", "PostgreSQL", "Next.js", "Vercel"],
+      'Classificador de sete doenças foliares de soja que sabe quando não sabe: abaixo do limiar de confiança, o caso é deferido para revisão humana.',
+    // TROCAR para ['dados', 'dev'] assim que a API estiver no ar.
+    // Enquanto o modelo só roda local, manter apenas 'dados'.
+    areas: ['dados'],
+    stack: ['Python', 'PyTorch', 'EfficientNet-V2-S', 'ONNX', 'Streamlit'],
     destaque: true,
     links: {
-      repo: "https://github.com/RafaelMouraG/radar-imoveis",
-      demo: "https://radar-imoveis.vercel.app",
+      repo: 'https://github.com/RafaelMouraG/AtlasLeaf',
+      // demo: preencher quando a API subir
     },
     case: {
       problema:
-        "Quem procura imóvel não tem como saber se um anúncio está caro ou barato para a região: o preço de referência não é público.",
+        'Identificar doença foliar de soja a partir de uma foto parece um problema resolvido de classificação de imagem. Não é. O desafio real apareceu na avaliação: o modelo marcava 98,5% de acurácia na validação e desmoronava em qualquer imagem que não viesse do dataset original.',
       abordagem:
-        "Scraper diário agendado coleta anúncios e persiste em Postgres; um modelo de regressão treinado sobre o histórico estima o preço esperado por região e características; um app Next.js lista os anúncios com maior desconto sobre o estimado.",
+        'Transfer learning com EfficientNet-V2-S sobre o dataset ASDID, exportação para ONNX para desacoplar treino de inferência, e uma camada de rejeição por confiança na frente da predição. A interface em Streamlit recebe a foto, consulta o modelo e mostra tanto a classe quanto o quanto se pode confiar nela.',
       decisoes:
-        "Regressão linear regularizada em vez de gradient boosting: a diferença de erro era pequena e o modelo linear permite explicar o preço estimado ao usuário. Descartei fila de mensagens na ingestão — o volume diário não justificava a complexidade; um cron simples resolve.",
+        'A decisão que definiu o projeto foi refazer o protocolo de avaliação com split por câmera, treinando em um conjunto de câmeras e testando em outro. O número honesto caiu de 98,5% para 74,6% de acurácia balanceada em câmera não vista, e ficou claro que o modelo anterior aprendia a assinatura do equipamento e da fonte, não a lesão. A segunda decisão foi deixar o modelo se abster: em diagnóstico agronômico, uma predição errada com alta confiança custa mais caro que um "não sei". No levantamento de datasets apareceu ainda um risco taxonômico concreto, já que o rótulo "cercospora" agrupa Cercospora kikuchii e Cercospora sojina em várias fontes, apesar de serem doenças distintas.',
       resultado:
-        "Pipeline roda sem intervenção há meses; o app responde em menos de 200ms com previsões pré-calculadas no build do dia.",
+        '74,6% de acurácia balanceada em câmera não vista, com abstenção nos casos de baixa confiança. O aprendizado que levo é anterior ao modelo: definir o split por domínio antes de treinar qualquer coisa. Passei semanas otimizando em cima de uma métrica que não media generalização, e nenhum ajuste de arquitetura teria consertado isso.',
     },
   },
   {
-    slug: "classificador-chamados",
-    titulo: "Classificador de Chamados",
+    slug: 'biblioo',
+    titulo: 'Biblioo',
     resumo:
-      "API que classifica tickets de suporte por assunto e urgência usando embeddings, com painel de acompanhamento.",
-    areas: ["dados", "dev"],
-    stack: ["Python", "FastAPI", "Embeddings", "Docker", "Streamlit"],
+      'Rede social de leitura com web, mobile e API em stack de produção. Atuei no backend, em notificações assíncronas e testes de carga.',
+    areas: ['dev'],
+    papel: 'Equipe de seis. Backend: notificações assíncronas, testes de carga e correção de cache.',
+    stack: ['Java 25', 'Spring Boot 4', 'RabbitMQ', 'Redis', 'MySQL', 'Neo4j', 'k6', 'Cloud Run'],
     destaque: true,
     links: {
-      repo: "https://github.com/RafaelMouraG/classificador-chamados",
-      demo: "https://classificador-chamados.streamlit.app",
+      repo: 'https://github.com/RafaelMouraG/biblioo',
+      demo: 'https://biblioo-rust.vercel.app/',
     },
     case: {
       problema:
-        "Triagem manual de tickets de suporte consumia horas por dia e chamados urgentes esperavam na fila junto com os triviais.",
+        'Uma notificação não pode sumir. Se o consumidor cair no meio do processamento, o usuário não pode simplesmente nunca receber o aviso, e o mesmo evento precisa chegar por SSE no web e por FCM no mobile sem que o produtor saiba quem está escutando.',
       abordagem:
-        "API FastAPI recebe o texto do chamado, gera embedding e classifica por similaridade com categorias rotuladas; um painel Streamlit acompanha a distribuição e os casos de baixa confiança, que caem para revisão humana.",
+        'Persistir a notificação primeiro e só depois fazer o fanout, usando topic exchange no RabbitMQ para que cada canal consuma o que lhe interessa sem acoplamento com a origem do evento. O sistema roda dentro de um monólito modular com arquitetura hexagonal em onze domínios.',
       decisoes:
-        "Classificação por similaridade de embeddings em vez de fine-tuning: com poucas centenas de exemplos rotulados, o fine-tuning não pagava o custo. Limiar de confiança explícito — errar encaminhando para humano é barato, errar classificando é caro.",
+        'A ordem persistir e depois publicar foi deliberada: garante que a notificação exista no banco mesmo que todo o fanout falhe, e o reenvio vira um problema de reprocessamento, não de perda. Também troquei o cache de entidades JPA por DTOs depois de rastrear um bug de serialização no Redis causado por lazy loading, uma correção que virou regra para o resto do projeto. Na parte de qualidade, montei uma suíte k6 com 71 testes em oito domínios, nos perfis load, spike e stress, com os resultados em dashboards no Grafana.',
       resultado:
-        "Acurácia de 92% nas categorias principais e triagem automática de 80% do volume, com os 20% ambíguos revisados por pessoa.",
+        'Sistema no ar em Cloud Run, com web na Vercel e app Flutter offline-first. O que eu faria diferente é rodar carga durante o desenvolvimento e não no fim: os gargalos que a suíte revelou teriam mudado decisões de modelagem se eu soubesse deles antes. Entrei como o membro menos experiente de uma equipe de seis, e foi onde tive contato mais próximo com decisão de arquitetura real.',
     },
   },
   {
-    slug: "api-assinaturas",
-    titulo: "API de Assinaturas",
+    slug: 'hortifruti-santa-luzia',
+    titulo: 'Hortifruti Santa Luzia',
     resumo:
-      "API de gestão de assinaturas com autenticação, cobrança recorrente e webhooks, documentada e testada.",
-    areas: ["dev"],
-    stack: ["Node.js", "Fastify", "PostgreSQL", "JWT", "Docker"],
+      'Sistema de gestão para um hortifruti real, com atendimento por WhatsApp, boleto, conciliação bancária e emissão fiscal. Backend e integrações.',
+    areas: ['dev'],
+    papel: 'Equipe de seis, cliente real. Backend: camada de comunicação e integrações externas.',
+    stack: ['Java 21', 'Spring Boot 4', 'MySQL', 'Apache PDFBox', 'API Sicoob', 'Focus NFe', 'Railway'],
     destaque: true,
     links: {
-      repo: "https://github.com/RafaelMouraG/api-assinaturas",
-      demo: "https://api-assinaturas.fly.dev/docs",
+      repo: 'https://github.com/marcosffp/hortifruti',
+      // CONFERIR qual URL está viva antes de publicar.
+      // O README do repo aponta para https://hortifruti-two.vercel.app/landing
+      demo: 'https://www.hortifrutisl.zone.id/',
     },
     case: {
       problema:
-        "Modelar cobrança recorrente de verdade: upgrades no meio do ciclo, inadimplência, reprocessamento de webhook — os casos que tutoriais pulam.",
+        'O cliente fazia na mão o que o sistema precisava automatizar: gerar boleto, conferir extrato contra pagamento recebido e emitir nota. A conciliação bancária era a parte mais cara, porque o extrato chega em PDF e cada banco monta o seu de um jeito diferente.',
       abordagem:
-        "API REST em Fastify com autenticação JWT, máquina de estados explícita para o ciclo de vida da assinatura e processamento idempotente de webhooks de pagamento.",
+        'Extração e categorização das transações direto do PDF do extrato, com um parser que normaliza Sicoob e Banco do Brasil para um formato interno único, em vez de duplicar a lógica de conciliação por instituição. Em volta disso, integração com a API bancária via mTLS com certificado digital, emissão fiscal pela Focus NFe e notificação por e-mail e WhatsApp.',
       decisoes:
-        "Máquina de estados no banco em vez de flags booleanas: transição inválida vira erro de domínio, não bug silencioso. Idempotência por chave de evento porque gateway de pagamento reenvia webhook — processar duas vezes é cobrar duas vezes.",
+        'A escolha de normalizar na entrada, e não espalhar condicional por banco no domínio, foi o que manteve o código sustentável quando entrou a segunda instituição. Integração bancária com certificado digital tem pouca margem para erro e documentação escassa, então cada chamada precisou de validação explícita. Hoje eu iria além: trataria toda integração externa como fronteira, com camada de anticorrupção e contrato próprio, porque o formato de cada fornecedor ainda vaza mais do que deveria para dentro do sistema. E colocaria retry com fila nas chamadas externas, já que API de banco cai e na época isso derrubava o fluxo inteiro.',
       resultado:
-        "Cobertura de testes acima de 90% nos fluxos de cobrança, documentação OpenAPI navegável e deploy contínuo no Fly.io.",
+        'Geração de boletos caiu de cerca de duas horas por dia para dez minutos. Conciliação bancária, de quatro horas por semana para quinze minutos. Agrupamento, de três horas por semana para cinco minutos. O projeto foi do kick-off ao treinamento dos gestores, com o sistema substituindo processos manuais que existiam antes.',
     },
   },
   {
-    slug: "pipeline-precos",
-    titulo: "Pipeline de Preços Públicos",
+    slug: 'fieldflow',
+    titulo: 'FieldFlow',
     resumo:
-      "Pipeline que consolida preços públicos de combustíveis em um dashboard navegável por região e período.",
-    areas: ["dados"],
-    stack: ["Python", "dbt", "DuckDB", "GitHub Actions", "Evidence"],
+      'Marketplace de serviços agrícolas onde a contratação roda por eventos assíncronos. API e app mobile, construído sozinho.',
+    areas: ['dev'],
+    stack: ['Python', 'FastAPI', 'PostgreSQL', 'RabbitMQ', 'Alembic', 'pytest', 'Docker', 'Flutter'],
     destaque: true,
     links: {
-      repo: "https://github.com/RafaelMouraG/pipeline-precos",
-      demo: "https://precos-combustiveis.vercel.app",
+      repo: 'https://github.com/RafaelMouraG/FieldFLow',
     },
     case: {
       problema:
-        "Os dados públicos de preços de combustíveis existem, mas espalhados em dezenas de planilhas com esquemas inconsistentes — inutilizáveis para consulta direta.",
+        'Fluxo de contratação entre produtor e prestador não pode perder mensagem nem executar a mesma ação duas vezes. Entrega assíncrona é at-least-once por natureza, o que significa que o consumidor vai receber evento repetido, e o sistema precisa aguentar isso sem duplicar contratação.',
       abordagem:
-        "Ingestão agendada via GitHub Actions normaliza as planilhas para um esquema único; transformações em dbt sobre DuckDB geram as tabelas analíticas; um dashboard estático publica as séries por região e período.",
+        'Idempotência por event_id no consumidor, Dead-Letter Queue para reprocessar o que falhou, e topic exchange no RabbitMQ separando os fluxos. A organização segue Clean Architecture por bounded context, com o app Flutter consumindo a API.',
       decisoes:
-        "DuckDB em vez de um warehouse gerenciado: o volume cabe em um arquivo e o custo é zero, sem perder SQL analítico. Dashboard estático re-renderizado a cada carga em vez de BI conectado — ninguém precisa de dado mais fresco que a fonte, que atualiza semanalmente.",
+        'Coloquei a garantia no consumidor e não no broker, porque nenhuma configuração de fila resolve o problema de aplicação: o consumidor precisa saber que já viu aquele evento. A DLQ existe para transformar falha em fila de trabalho, e não em log perdido. A dívida conhecida do projeto é a ausência de outbox pattern, que hoje deixa a gravação no banco e a publicação do evento sem garantia de consistência entre as duas.',
       resultado:
-        "Série histórica completa navegável no browser, atualizada toda semana sem intervenção manual desde o primeiro deploy.",
+        'Fluxo completo de publicação, candidatura e contratação rodando por eventos, com a stack inteira subindo via Docker Compose. Comecei como trabalho de disciplina e segui além do escopo por conta própria, em parte para provar que arquitetura orientada a eventos é conceito, não framework, saindo do Java e do Spring. Se recomeçasse, colocaria observabilidade no primeiro dia, porque depurar fluxo assíncrono sem log correlacionado por evento é sofrimento evitável.',
     },
   },
-];
+  {
+    slug: 'biblioteca-de-grafos',
+    titulo: 'Biblioteca de grafos e rede de similaridade musical',
+    resumo:
+      'Biblioteca de grafos direcionados com API única sobre duas representações internas, validada numa rede de similaridade entre 156 mil artistas do Spotify e 300 mil colaborações reais.',
+    areas: ['dados'],
+    destaque: true,
+    papel: 'Equipe de cinco. Camada de consultas de relacionamento da biblioteca, redação e revisão do artigo.',
+    stack: ['Python 3', 'Label Propagation', 'Eigenvector Centrality', 'Gephi'],
+    links: {
+      // repo: conferir visibilidade (o endereço atual retorna 404 para quem não está logado)
+    },
+    case: {
+      problema:
+        'Bibliotecas de grafo costumam acoplar os algoritmos de análise a uma representação interna específica, matriz ou lista de adjacência, o que impede reutilizar o mesmo algoritmo quando a densidade do grafo muda e obriga a antecipar, na implementação, qual estrutura será mais adequada. O trabalho propôs separar explicitamente a API pública da implementação concreta, e provar essa separação num caso de uso real de grande escala.',
+      abordagem:
+        'Uma classe abstrata define o contrato e concentra tudo que independe da estrutura interna: validação de índices e laços, pesos de vértice, consultas estruturais de relacionamento, verificações globais como conectividade e exportação para GEXF. Duas classes concretas, matriz e lista de adjacência, implementam separadamente apenas o que depende da estrutura. Como estudo de caso, modelamos uma rede de similaridade entre 156.422 artistas e 300.379 colaborações do dataset Spotify Artist Feature Collaboration Network, tratando cada feature registrada como evidência observável de afinidade musical, e rodamos Label Propagation para detectar comunidades e Eigenvector Centrality para medir influência.',
+      decisoes:
+        'A decisão que estrutura o projeto foi implementar as consultas derivadas na camada abstrata, sobre a relação de adjacência já exposta pela API, e não sobre a estrutura interna de cada representação. É isso que garante comportamento idêntico nas duas sem duplicar código, e foi onde ficou claro que a fronteira da abstração precisa ser desenhada antes da implementação, não depois. No domínio, assumimos a colaboração como aproximação da similaridade, já que o dataset não traz medida pronta, deixando explícita a limitação: sem intensidade na aresta, não dá para distinguir parceria esporádica de recorrente. A escala também impôs escolha: a matriz de adjacência exigiria cerca de 2,44 × 10¹⁰ elementos e ficou inviável, restando só a lista para o grafo completo.',
+      resultado:
+        'A separação se provou na prática. Os dois algoritmos foram escritos uma única vez, em termos apenas de getVertexCount e getNeighbors, e rodaram sem nenhuma alteração sobre a representação escolhida. O pipeline completo executa em cerca de 229 segundos sobre a rede inteira. Do lado do domínio, o achado mais interessante foi que centralidade não é popularidade: o artista mais central tem popularidade 84, abaixo de vários que aparecem atrás dele no ranqueamento, e o que o coloca no topo é atravessar a fronteira entre a cena urbana latina e o hip-hop americano, não acumular conexões dentro da própria comunidade. Um artista muito popular que colabora sempre com os mesmos parceiros fica estruturalmente periférico.',
+    },
+  },
+]
 
 // Validação em tempo de build: cada filtro precisa de pelo menos 2 projetos,
 // senão a grade filtrada trabalha contra a tese do portfólio.
-const MINIMO_POR_FILTRO = 2;
-for (const area of ["dados", "dev"] as const) {
-  const total = projetos.filter((p) => p.areas.includes(area)).length;
+const MINIMO_POR_FILTRO = 2
+for (const area of ['dados', 'dev'] as const) {
+  const total = projetos.filter((p) => p.areas.includes(area)).length
   if (total < MINIMO_POR_FILTRO) {
     console.warn(
       `[content/projetos] o filtro "${area}" tem ${total} projeto(s); o mínimo esperado é ${MINIMO_POR_FILTRO}.`,
-    );
+    )
   }
 }

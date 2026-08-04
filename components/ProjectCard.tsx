@@ -23,6 +23,12 @@ export function ProjectCard({ projeto }: { projeto: Projeto }) {
         {projeto.titulo}
       </h3>
       <p className="mt-2 grow text-muted leading-relaxed">{projeto.resumo}</p>
+      {projeto.papel && (
+        <p className="mt-3 text-sm text-muted">
+          <span className="font-medium text-foreground">Meu papel:</span>{" "}
+          {projeto.papel}
+        </p>
+      )}
       <p className="mt-4 font-mono text-xs text-muted">
         {projeto.stack.join(" · ")}
       </p>

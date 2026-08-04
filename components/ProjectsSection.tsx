@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { projetos } from "@/content/projetos";
+import { perfil } from "@/content/perfil";
 import { AreaFilter, type FiltroArea } from "./AreaFilter";
 import { ProjectCard } from "./ProjectCard";
 
@@ -79,6 +80,31 @@ export function ProjectsSection() {
           </AnimatePresence>
         </motion.ul>
       </MotionConfig>
+
+      {perfil.outrosProjetos.length > 0 && (
+        <div className="mt-12">
+          <h3 className="font-mono text-sm text-muted">outros projetos</h3>
+          <ul className="mt-4 space-y-3">
+            {perfil.outrosProjetos.map(({ nome, descricao, link }) => (
+              <li key={nome} className="max-w-2xl text-sm leading-relaxed">
+                {link ? (
+                  <a
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="accent-transition font-medium underline decoration-border underline-offset-4 hover:text-accent hover:decoration-accent"
+                  >
+                    {nome}
+                  </a>
+                ) : (
+                  <span className="font-medium">{nome}</span>
+                )}
+                <span className="text-muted"> — {descricao}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }

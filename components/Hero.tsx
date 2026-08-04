@@ -1,11 +1,12 @@
 import { perfil } from "@/content/perfil";
 
 const contatos = [
-  { label: "GitHub", href: perfil.github, externo: true },
-  { label: "LinkedIn", href: perfil.linkedin, externo: true },
-  { label: "E-mail", href: `mailto:${perfil.email}`, externo: false },
-  { label: "Currículo (PDF)", href: perfil.cv, externo: true },
-];
+  { label: "GitHub", href: perfil.links.github, externo: true },
+  { label: "LinkedIn", href: perfil.links.linkedin, externo: true },
+  { label: "E-mail", href: `mailto:${perfil.links.email}`, externo: false },
+  { label: "Currículo (PDF)", href: perfil.links.cv, externo: true },
+  // Link com URL vazia no perfil (ex.: LinkedIn ainda não preenchido) não aparece
+].filter(({ href }) => href && href !== "mailto:");
 
 export function Hero() {
   return (
