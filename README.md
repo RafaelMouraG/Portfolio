@@ -13,9 +13,11 @@ npm run dev
 
 ## Editando conteúdo
 
-- `content/perfil.ts` — nome, posicionamento, sobre, links, stack e outros projetos.
-- `content/projetos.ts` — fonte única dos projetos. Adicionar um projeto é adicionar um objeto; card, filtro e página de case derivam dele. O build emite warning se qualquer filtro de área ficar com menos de 2 projetos.
-- `content/perfil.en.ts` e `content/projetos.en.ts` — as versões em inglês, com o mesmo tipo dos originais: se a estrutura divergir, o compilador acusa. Ao editar um conteúdo, edite o par.
+Todo o código fica em `src/` (`src/app`, `src/components`, `src/content`, `src/lib`); a raiz guarda só configuração e `public/`. O alias `@/` aponta para `src/`.
+
+- `src/content/perfil.ts` — nome, posicionamento, sobre, links, stack e outros projetos.
+- `src/content/projetos.ts` — fonte única dos projetos. Adicionar um projeto é adicionar um objeto; card, filtro e página de case derivam dele. O build emite warning se qualquer filtro de área ficar com menos de 2 projetos.
+- `src/content/perfil.en.ts` e `src/content/projetos.en.ts` — as versões em inglês, com o mesmo tipo dos originais: se a estrutura divergir, o compilador acusa. Ao editar um conteúdo, edite o par.
 
 ## Decisões que valem registro
 
