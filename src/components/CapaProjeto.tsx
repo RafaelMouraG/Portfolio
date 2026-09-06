@@ -8,6 +8,12 @@ import type { Projeto } from "@/content/projetos";
  * (verde em dev, amarelo em dados) e reagir a tema e filtro de graça.
  */
 
+const ajustesImagem = {
+  cover: 'object-cover',
+  contain: 'object-contain p-8',
+  'cover-topo': 'object-cover object-top',
+} as const;
+
 // Rede de similaridade: duas comunidades e o nó-ponte que atravessa a fronteira
 function ArteGrafos() {
   const esquerda: Array<[number, number]> = [
@@ -30,7 +36,7 @@ function ArteGrafos() {
           key={`e${a}${b}`}
           x1={esquerda[a][0]} y1={esquerda[a][1]}
           x2={esquerda[b][0]} y2={esquerda[b][1]}
-          stroke="var(--border)"
+          stroke="var(--border-strong)"
         />
       ))}
       {arestasDir.map(([a, b]) => (
@@ -38,7 +44,7 @@ function ArteGrafos() {
           key={`d${a}${b}`}
           x1={direita[a][0]} y1={direita[a][1]}
           x2={direita[b][0]} y2={direita[b][1]}
-          stroke="var(--border)"
+          stroke="var(--border-strong)"
         />
       ))}
       {ligacoesPonte.map(([x, y]) => (
@@ -65,10 +71,10 @@ function ArteAtlasLeaf() {
   return (
     <g strokeWidth="1.5" strokeLinecap="round">
       {/* cantos do quadro de captura */}
-      <path d="M32 52 V32 H52" stroke="var(--border)" />
-      <path d="M368 52 V32 H348" stroke="var(--border)" />
-      <path d="M32 173 V193 H52" stroke="var(--border)" />
-      <path d="M368 173 V193 H348" stroke="var(--border)" />
+      <path d="M32 52 V32 H52" stroke="var(--border-strong)" />
+      <path d="M368 52 V32 H348" stroke="var(--border-strong)" />
+      <path d="M32 173 V193 H52" stroke="var(--border-strong)" />
+      <path d="M368 173 V193 H348" stroke="var(--border-strong)" />
       {/* folha */}
       <path
         d="M200 45 C255 70 270 130 200 185 C130 130 145 70 200 45 Z"
@@ -139,7 +145,7 @@ function ArteHortifruti() {
         <line
           key={y}
           x1="70" y1={y} x2={i % 2 === 0 ? 150 : 128} y2={y}
-          stroke="var(--border)"
+          stroke="var(--border-strong)"
         />
       ))}
       <line x1="70" y1="168" x2="150" y2="168" stroke="currentColor" />
@@ -172,27 +178,23 @@ function ArteHortifruti() {
   );
 }
 
-// Eventos na esteira: consumidor idempotente, DLQ e reprocessamento
+// A marca do FieldFlow: quatro leiras de um campo arado que se juntam numa
+// linha só — o campo à esquerda, o fluxo à direita. Mesma arte do app, em
+// traço, no osso da paleta.
 function ArteFieldFlow() {
   return (
-    <g fill="none" strokeWidth="1.5" strokeLinecap="round">
-      <line x1="35" y1="95" x2="300" y2="95" stroke="var(--muted)" opacity="0.6" />
-      <path d="M296 91 L304 95 L296 99" stroke="var(--muted)" opacity="0.6" />
-      {/* eventos; o do meio chegou duplicado (entrega at-least-once) */}
-      <rect x="84" y="89" width="13" height="13" rx="2" stroke="currentColor" fill="currentColor" fillOpacity="0.08" />
-      <rect x="134" y="85" width="13" height="13" rx="2" stroke="currentColor" opacity="0.35" />
-      <rect x="138" y="89" width="13" height="13" rx="2" stroke="currentColor" fill="currentColor" fillOpacity="0.08" />
-      <rect x="188" y="89" width="13" height="13" rx="2" stroke="currentColor" fill="currentColor" fillOpacity="0.08" />
-      {/* consumidor: já vi esse event_id? */}
-      <rect x="306" y="70" width="60" height="50" rx="8" stroke="currentColor" />
-      <path d="M324 95 L333 104 L349 84" stroke="currentColor" />
-      {/* falha vira fila de trabalho, não log perdido */}
-      <path d="M216 99 C205 125 200 135 192 148" stroke="var(--muted)" opacity="0.6" />
-      <path d="M189 141 L191 150 L198 145" stroke="var(--muted)" opacity="0.6" />
-      <rect x="150" y="152" width="80" height="34" rx="6" stroke="var(--muted)" strokeDasharray="5 5" />
-      {/* reprocessamento: da DLQ de volta para a esteira */}
-      <path d="M232 169 C278 169 282 135 287 103" stroke="currentColor" strokeDasharray="4 5" opacity="0.7" />
-      <path d="M282 108 L288 100 L292 109" stroke="currentColor" opacity="0.7" />
+    <g
+      transform="translate(140 52.5) scale(2.5)"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 13h9c8 0 8 11 16 11h11" />
+      <path d="M6 20.5h9c6 0 6 3.5 14 3.5" />
+      <path d="M6 27.5h9c6 0 6-3.5 14-3.5" />
+      <path d="M6 35h9c8 0 8-11 16-11" />
     </g>
   );
 }
@@ -208,7 +210,7 @@ function ArteGenerica() {
   return (
     <g>
       {pontos.map(([x, y]) => (
-        <circle key={`${x}-${y}`} cx={x} cy={y} r="2" fill="var(--border)" />
+        <circle key={`${x}-${y}`} cx={x} cy={y} r="2" fill="var(--border-strong)" />
       ))}
       <line
         x1="40" y1="195" x2="360" y2="35"
@@ -234,7 +236,7 @@ export function CapaProjeto({ projeto }: { projeto: Projeto }) {
         alt={projeto.imagem.alt}
         fill
         sizes="(min-width: 640px) 50vw, 100vw"
-        className="object-cover"
+        className={`${ajustesImagem[projeto.imagem.ajuste ?? 'cover']} transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100`}
       />
     );
   }

@@ -12,7 +12,9 @@ export type Projeto = {
   papel?: string
   // Screenshot real do projeto (arquivo em public/). Enquanto vazio, o card e
   // o case usam a arte SVG do slug em components/CapaProjeto.
-  imagem?: { src: string; alt: string }
+  // `ajuste`: cover preenche o quadro (padrão), contain veste logos com
+  // respiro, cover-topo ancora retrato (celular) no topo em vez do centro.
+  imagem?: { src: string; alt: string; ajuste?: 'cover' | 'contain' | 'cover-topo' }
   // Capturas exibidas em galeria na página de case (não no card). Ideal para
   // screenshot de celular, que não cabe no formato 16:9 da capa.
   capturas?: Array<{ src: string; alt: string; largura: number; altura: number }>
@@ -58,7 +60,7 @@ export const projetos: Projeto[] = [
       'Rede social de leitura com web, mobile e API em stack de produção. Atuei no backend: módulo de usuários, notificações assíncronas, assistente de IA e testes de performance.',
     areas: ['dev'],
     papel:
-      'Equipe de seis. Backend: módulo de usuários, notificações assíncronas, assistente de IA e testes de performance.',
+      'Equipe de seis. Backend: módulo de usuários, notificações assíncronas, assistente de IA e testes de performance. Melhor trabalho da turma.',
     stack: [
       'Java 25',
       'Spring Boot 4',
@@ -71,6 +73,11 @@ export const projetos: Projeto[] = [
       'Cloud Run',
     ],
     destaque: true,
+    imagem: {
+      src: '/biblioo-logo-branca.png',
+      alt: 'Logotipo do Biblioo',
+      ajuste: 'contain',
+    },
     links: {
       repo: 'https://github.com/RafaelMouraG/biblioo',
       demo: 'https://biblioo-rust.vercel.app/',
@@ -95,6 +102,10 @@ export const projetos: Projeto[] = [
     papel: 'Equipe de seis, cliente real. Backend: camada de comunicação e integrações externas.',
     stack: ['Java 21', 'Spring Boot 4', 'MySQL', 'Apache PDFBox', 'API Sicoob', 'Focus NFe', 'Railway'],
     destaque: true,
+    imagem: {
+      src: '/hortifruti-banner.png',
+      alt: 'Marca do Hortifruti Santa Luzia',
+    },
     capturas: [
       {
         src: '/hortifruti-banner.png',

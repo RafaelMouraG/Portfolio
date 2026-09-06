@@ -2,8 +2,11 @@ import { ImageResponse } from "next/og";
 
 export const ogSize = { width: 1200, height: 630 };
 
-// Layout único para todas as imagens OG: fundo escuro neutro, os três
-// accents do filtro como assinatura visual, título e uma linha de apoio.
+/*
+ * Layout único para todas as imagens OG, na paleta neutra: preto quente,
+ * texto osso e três pontos monocromáticos como assinatura — do osso cheio
+ * ao esfumaçado. Hex porque Satori (renderer do next/og) não lê oklch.
+ */
 export function ogImage(titulo: string, subtitulo: string) {
   return new ImageResponse(
     (
@@ -15,12 +18,13 @@ export function ogImage(titulo: string, subtitulo: string) {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 80,
-          backgroundColor: "#0c0c10",
-          color: "#ececf1",
+          backgroundColor: "#0b0b0a",
+          color: "#eceae5",
         }}
       >
         <div style={{ display: "flex", gap: 12 }}>
-          {["#facc15", "#60a5fa", "#34d399"].map((cor) => (
+          {/* osso cheio, cinza médio, cinza baixo */}
+          {["#eceae5", "#8d8b84", "#3d3c38"].map((cor) => (
             <div
               key={cor}
               style={{
@@ -33,10 +37,17 @@ export function ogImage(titulo: string, subtitulo: string) {
           ))}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          <div style={{ fontSize: 64, fontWeight: 700, lineHeight: 1.1 }}>
+          <div
+            style={{
+              fontSize: 64,
+              fontWeight: 600,
+              lineHeight: 1.08,
+              letterSpacing: "-0.035em",
+            }}
+          >
             {titulo}
           </div>
-          <div style={{ fontSize: 30, color: "#a3a3ad", lineHeight: 1.4 }}>
+          <div style={{ fontSize: 30, color: "#8d8b84", lineHeight: 1.4 }}>
             {subtitulo}
           </div>
         </div>

@@ -6,26 +6,38 @@ export const perfilEn: Perfil = {
   nome: 'Rafael Ganascini de Moura',
 
   posicionamento:
-    'Backend and systems integration, with parallel work in data and computer vision',
+    'Backend in Java and Python, grounded in data and computer vision',
 
   // Mesma frase, segmentada para o Hero pintar cada metade com a cor da
-  // sua área (dev = esmeralda, dados = amarelo).
+  // sua área (dev = verde, dados = dourado). O trecho com `enfase` ganha a
+  // serifa em itálico.
   posicionamentoRico: [
-    { texto: 'Backend and systems integration', area: 'dev' as const },
-    { texto: ', with parallel work in ' },
-    { texto: 'data and computer vision', area: 'dados' as const },
+    { texto: 'Backend in Java and Python', area: 'dev' as const },
+    { texto: ', grounded in ' },
+    { texto: 'data and computer vision', area: 'dados' as const, enfase: true },
   ],
 
-  disponibilidade: 'open to a first role — backend or data',
+  disponibilidade: 'intern at Business Tec · Java + PrimeFaces',
+
+  cidade: 'Belo Horizonte',
+  formacaoCurta: 'Software Engineering · PUC Minas · graduating end of 2027',
+  idiomasResumo: 'PT native · EN advanced',
 
   sobre: [
-    'Software Engineering student at PUC Minas, in Belo Horizonte, Brazil. Expected graduation at the end of 2027; native Portuguese speaker, advanced English.',
-    'I work mainly on the backend, with Java and Python. Most of my work has centered on communication between systems: asynchronous messaging, integration with external services, and the guarantees a flow needs so nothing gets lost when one of those parts fails. A relevant share of that experience comes from team projects with real clients, from requirements gathering to delivery.',
-    'In parallel, I build projects in data and computer vision, paying particular attention to the evaluation protocol and to what a metric actually measures.',
-    'I am looking for a position in backend or data engineering — the areas where these two fronts meet.',
+    'I study Software Engineering at PUC Minas and intern at Business Tec. I work with Java and PrimeFaces, touching both back and front ends.',
+    'Outside work, I keep going in backend with Java and Python: async messaging, API integrations, and flows that stay up when a piece goes down. In data and computer vision I care more about measuring right than training more — along the way, three projects were voted best in class.',
   ],
 
-  techsPrincipais: ['Java', 'Spring Boot', 'Python', 'PyTorch', 'RabbitMQ', 'Docker'],
+  techsPrincipais: [
+    'Java',
+    'Spring Boot',
+    'Python',
+    'FastAPI',
+    'PyTorch',
+    'RabbitMQ',
+    'PostgreSQL',
+    'Docker',
+  ],
 
   links: {
     github: 'https://github.com/RafaelMouraG',
@@ -38,6 +50,38 @@ export const perfilEn: Perfil = {
     { rotulo: 'Résumé · EN', href: '/cv-dev-en.pdf', principal: true },
     { rotulo: 'Dev · PT-BR', href: '/cv-dev-ptbr.pdf', principal: false },
     { rotulo: 'Data · PT-BR', href: '/cv-dados-ptbr.pdf', principal: false },
+  ],
+
+  experiencia: [
+    {
+      local: 'Business Tec',
+      papel: 'Intern · Java + PrimeFaces',
+      periodo: 'now',
+      descricao: 'Back and front in the day-to-day.',
+      stack: ['Java', 'PrimeFaces'],
+    },
+    {
+      local: 'Hortifruti Santa Luzia',
+      papel: 'Backend · real-client interdisciplinary coursework, team of 6',
+      periodo: 'project',
+      descricao:
+        'Communication layer and integrations: boletos, bank reconciliation and e-invoices.',
+      stack: ['Spring Boot', 'MySQL', 'Sicoob API', 'Focus NFe'],
+    },
+    {
+      local: 'PUC Minas',
+      papel: 'Software Engineering',
+      periodo: 'Feb 2024 — Dec 2027',
+      descricao: 'Degree in progress — the base of the real-client projects.',
+    },
+  ],
+
+  reconhecimentos: [
+    {
+      titulo: 'Best in class · 3×',
+      descricao:
+        'Biblioo, Ávila Lótus and FeedbackFusion — interdisciplinary coursework.',
+    },
   ],
 
   stack: [
@@ -96,13 +140,13 @@ export const perfilEn: Perfil = {
     {
       nome: 'Ávila Lótus',
       descricao:
-        'Scheduling and anamnesis platform for a massage therapist, with financial reporting. First project with a real client, 26 functional requirements.',
+        'Scheduling and anamnesis for a massage therapist, with financial reporting. First real client, 26 functional requirements.',
       link: 'https://avila-lotus.onrender.com/',
     },
     {
       nome: 'FeedbackFusion',
       descricao:
-        'Corporate feedback platform with gamification. First cross-disciplinary project of the degree.',
+        'Corporate feedback platform with gamification. Second interdisciplinary project of the degree.',
       link: '',
     },
   ],

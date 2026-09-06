@@ -1,20 +1,33 @@
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
+import { Space_Grotesk, Newsreader, JetBrains_Mono } from "next/font/google";
 import "@/app/globals.css";
+import { perfil } from "@/content/perfil";
+import { BarraProgresso } from "./BarraProgresso";
+import { Topografia } from "./Topografia";
+import { EasterEgg } from "./EasterEgg";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
+/*
+ * As três vozes do design: Space Grotesk carrega a interface e os títulos,
+ * Newsreader entra em itálico para a prosa (bio, texto dos cases, frase de
+ * fechamento) e JetBrains Mono marca tudo que é etiqueta, número ou metadado.
+ */
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
+
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["300", "400", "500"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 /*
@@ -25,12 +38,13 @@ export function Documento({ lang, children }: { lang: "pt-BR" | "en"; children: 
   return (
     <html
       lang={lang}
-      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${newsreader.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        {/* Brilhos do topo: cada área tem o seu para poder reagir ao filtro */}
-        <div aria-hidden className="brilho-area brilho-area--dados" />
-        <div aria-hidden className="brilho-area brilho-area--dev" />
+      <body className="flex min-h-full flex-col">
+        {/* Relevo animado atrás da página inteira */}
+        <Topografia />
+        <BarraProgresso />
+        <EasterEgg email={perfil.links.email} />
         {children}
       </body>
     </html>

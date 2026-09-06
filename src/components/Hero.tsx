@@ -1,9 +1,21 @@
 import { conteudo, textos, type Idioma } from "@/lib/i18n";
+import { CopiarEmail } from "./CopiarEmail";
+import { HoraLocal } from "./HoraLocal";
+import { IconeGithub, IconeLinkedin } from "./Icones";
 import { SeletorIdioma } from "./SeletorIdioma";
+import { TerminalHero } from "./TerminalHero";
 
 /*
- * O Hero mostra só o currículo principal do idioma (na home en, o résumé em
- * inglês); as três versões ficam no Contato.
+ * Cabeçalho compacto: nome, posicionamento, chips de contexto (cidade + hora,
+ * formação, idiomas), lead de 2-3 linhas, CTAs, terminal digitado e um
+ * <details> com o resto da bio. O lead curto traz os botões para a primeira
+ * dobra sem o hack de reordenação no mobile que a bio longa exigia.
+ *
+ * Atalhos em quadrados de 36px (size-9): 32px era pouco para touch e as
+ * siglas ganham `title` para o hover mostrar o nome por extenso.
+ *
+ * Firula contida: grade milimetrada + holofote que segue o mouse atrás do
+ * bloco (só com hover; some no touch), e o terminal como peça de impacto.
  */
 export function Hero({ idioma, destinoIdioma }: { idioma: Idioma; destinoIdioma: string }) {
   const { perfil } = conteudo[idioma];
@@ -12,73 +24,130 @@ export function Hero({ idioma, destinoIdioma }: { idioma: Idioma; destinoIdioma:
   const cvPrincipal =
     perfil.curriculos.find(({ principal }) => principal) ?? perfil.curriculos[0];
 
-  const contatos = [
-    { label: t.curriculo, href: cvPrincipal?.href, externo: true, primario: true },
-    { label: "GitHub", href: perfil.links.github, externo: true, primario: false },
-    { label: "LinkedIn", href: perfil.links.linkedin, externo: true, primario: false },
-    { label: t.email, href: `mailto:${perfil.links.email}`, externo: false, primario: false },
-    // Link com URL vazia no perfil não aparece
-  ].filter(({ href }) => href && href !== "mailto:");
+  // Só destinos externos: o e-mail fica na linha de CTAs, onde abrir e copiar
+  // são ações distintas, e não se repete aqui. Link com URL vazia no perfil
+  // não aparece. GitHub e LinkedIn vestem o ícone da marca; o currículo segue
+  // em texto — o quadrado leva aria-label por extenso de todo jeito, porque
+  // sigla e ícone são visuais, não nomes acessíveis.
+  const atalhos = [
+    { sigla: "GH", icone: <IconeGithub className="size-4" />, rotulo: "GitHub", href: perfil.links.github },
+    { sigla: "IN", icone: <IconeLinkedin className="size-4" />, rotulo: "LinkedIn", href: perfil.links.linkedin },
+    { sigla: "CV", icone: null, rotulo: t.curriculo, href: cvPrincipal?.href },
+  ].filter((atalho): atalho is typeof atalho & { href: string } => Boolean(atalho.href));
+
+  const [lead, ...resto] = perfil.sobre;
 
   return (
-    <header className="pt-16 pb-16 sm:pt-24">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="inline-flex items-center gap-2.5 rounded-full border border-accent/25 bg-accent/10 px-3.5 py-1.5 font-mono text-xs text-accent">
-          <span aria-hidden className="relative flex size-2">
-            <span className="pulso-disponivel absolute inline-flex size-full rounded-full bg-accent" />
-            <span className="relative inline-flex size-2 rounded-full bg-accent" />
-          </span>
-          {perfil.disponibilidade}
-        </p>
-        <SeletorIdioma idioma={idioma} destino={destinoIdioma} />
+    <header className="relative flex flex-col gap-[28px]">
+      <div className="relative flex flex-wrap items-start justify-between gap-6">
+        <div className="flex min-w-0 flex-col gap-2">
+          <h1 className="surgir text-[38px] leading-[1.05] font-semibold tracking-[-0.035em] sm:text-[44px]">
+            {perfil.nome}
+          </h1>
+          <p className="surgir text-[17px] tracking-[-0.01em] text-muted [animation-delay:60ms] sm:text-[19px]">
+            {/* Cada metade da tese na cor da sua área; a que o conteúdo marca
+                como ênfase ganha a serifa em itálico, o gesto do design. */}
+            {perfil.posicionamentoRico.map(({ texto, area, enfase }) =>
+              area ? (
+                <span
+                  key={texto}
+                  data-accent={area}
+                  className={
+                    enfase ? "font-serif text-accent italic" : "text-accent"
+                  }
+                >
+                  {texto}
+                </span>
+              ) : (
+                <span key={texto}>{texto}</span>
+              ),
+            )}
+          </p>
+          <p className="surgir font-mono text-[11.5px] leading-[1.7] text-faint [animation-delay:120ms]">
+            {perfil.cidade}
+            <HoraLocal locale={idioma === "pt" ? "pt-BR" : "en-GB"} />
+            <span aria-hidden className="text-dim"> · </span>
+            {perfil.formacaoCurta}
+            <span aria-hidden className="text-dim"> · </span>
+            {perfil.idiomasResumo}
+          </p>
+        </div>
+
+        <nav aria-label={t.ariaNav} className="flex gap-1.5 pt-1.5">
+          {atalhos.map(({ sigla, icone, rotulo, href }) => (
+            <a
+              key={sigla}
+              href={href}
+              aria-label={rotulo}
+              title={rotulo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="accent-transition grid size-9 place-items-center rounded-lg border border-border font-mono text-[10px] font-medium tracking-[0.04em] text-muted hover:border-border-strong hover:text-foreground"
+            >
+              {icone ?? sigla}
+            </a>
+          ))}
+          <SeletorIdioma idioma={idioma} destino={destinoIdioma} />
+        </nav>
       </div>
 
-      <p className="mt-8 font-mono text-sm text-muted">{perfil.nome}</p>
-      <h1 className="mt-4 max-w-3xl font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-        {/* Cada metade da tese na cor da sua área: verde para dev, amarelo para dados */}
-        {perfil.posicionamentoRico.map(({ texto, area }) =>
-          area ? (
-            <span key={texto} data-accent={area} className="text-accent">
-              {texto}
+      {lead && (
+        <p className="relative font-serif text-[19px] leading-[1.58] text-pretty text-prose sm:text-[20px]">
+          {lead}
+        </p>
+      )}
+
+      <div className="relative flex flex-wrap items-center gap-x-[18px] gap-y-4">
+        <div className="flex items-center gap-2.5">
+          <a
+            href={cvPrincipal?.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="accent-transition rounded-[9px] bg-foreground px-[18px] py-[11px] text-[14.5px] font-medium tracking-[-0.005em] text-background hover:bg-white"
+          >
+            {t.curriculo}
+          </a>
+          <a
+            href={`mailto:${perfil.links.email}`}
+            className="accent-transition rounded-[9px] border border-border px-[18px] py-[11px] text-[14.5px] font-medium tracking-[-0.005em] hover:border-border-strong"
+          >
+            {t.email}
+          </a>
+          <CopiarEmail
+            email={perfil.links.email}
+            rotulo={t.copiarEmail}
+            copiadoRotulo={t.copiado}
+          />
+        </div>
+
+        <p className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 font-mono text-[11px] tracking-[0.02em] text-muted">
+          <span aria-hidden className="pulso-disponivel size-1.5 rounded-full bg-foreground" />
+          {perfil.disponibilidade}
+        </p>
+      </div>
+
+      {resto.length > 0 && (
+        <details className="group relative">
+          <summary className="accent-transition inline-flex cursor-pointer list-none items-center gap-2 rounded-full border border-border px-4 py-2 font-mono text-[12px] tracking-[0.02em] text-muted hover:border-border-strong hover:text-foreground [&::-webkit-details-marker]:hidden">
+            <span>{t.lerMais}</span>
+            <span aria-hidden className="text-[14px] leading-none group-open:hidden">
+              +
             </span>
-          ) : (
-            <span key={texto}>{texto}</span>
-          ),
-        )}
-      </h1>
+            <span aria-hidden className="hidden text-[14px] leading-none group-open:inline">
+              −
+            </span>
+          </summary>
+          <div className="flex flex-col gap-3.5 pt-3.5 font-serif text-[18px] leading-[1.58] text-pretty text-prose sm:text-[20px]">
+            {resto.map((linha) => (
+              <p key={linha}>{linha}</p>
+            ))}
+          </div>
+        </details>
+      )}
 
-      <ul className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-2 font-mono text-sm text-muted">
-        {perfil.techsPrincipais.map((tech, i) => (
-          <li key={tech} className="flex items-center gap-x-2">
-            {i > 0 && (
-              <span aria-hidden className="text-accent/60">
-                ·
-              </span>
-            )}
-            {tech}
-          </li>
-        ))}
-      </ul>
-
-      <nav aria-label={t.ariaNav} className="mt-10">
-        <ul className="flex flex-wrap gap-3">
-          {contatos.map(({ label, href, externo, primario }) => (
-            <li key={label}>
-              <a
-                href={href}
-                {...(externo ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                className={
-                  primario
-                    ? "accent-transition inline-flex items-center rounded-full border border-accent bg-accent px-4 py-2 text-sm font-medium text-background hover:bg-accent/85"
-                    : "accent-transition inline-flex items-center rounded-full border border-border px-4 py-2 text-sm font-medium hover:border-accent hover:text-accent"
-                }
-              >
-                {label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <div className="relative">
+        <TerminalHero idioma={idioma} />
+      </div>
     </header>
   );
 }
