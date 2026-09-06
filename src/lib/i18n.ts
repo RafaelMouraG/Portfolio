@@ -29,15 +29,27 @@ type Textos = {
     variosProjetos: string
     outros: string
     meuPapel: string
-    verCase: string
+    abrir: string
   }
-  hero: { ariaNav: string; curriculo: string; email: string }
-  sobre: string
+  hero: {
+    ariaNav: string
+    curriculo: string
+    email: string
+    copiarEmail: string
+    copiado: string
+    lerMais: string
+    terminal: string
+  }
   stack: string
+  experiencia: string
+  reconhecimentos: string
   contato: {
     titulo: string
+    // A frase de fechamento é quebrada em três porque o miolo ganha peso
+    // (era dourado no design). Traduzir sempre os três pedaços juntos.
+    frase: { inicio: string; destaque: string; fim: string }
     curriculos: string
-    feitoPor: string
+    cidade: string
     codigoNoGitHub: string
   }
   caso: {
@@ -47,6 +59,9 @@ type Textos = {
     demoEmVideo: string
     repositorio: string
     capturas: string
+    proximoProjeto: string
+    conversar: string
+    todosProjetos: string
   }
   idioma: { alvo: string; rotuloLink: string }
 }
@@ -57,40 +72,53 @@ export const textos: Record<Idioma, Textos> = {
       rotulos: { dados: 'Dados e IA', todos: 'Todos', dev: 'Dev' },
       aria: 'Filtrar projetos por área',
     },
-    areas: { dados: 'Dados e IA', dev: 'Dev' },
+    areas: { dados: 'dados e IA', dev: 'dev' },
     projetos: {
       titulo: 'projetos',
       umProjeto: 'projeto',
       variosProjetos: 'projetos',
       outros: 'outros projetos',
-      meuPapel: 'Meu papel:',
-      verCase: 'ver case →',
+      meuPapel: 'Papel:',
+      abrir: 'no ar ↗',
     },
     hero: {
-      ariaNav: 'Contato e currículo',
-      curriculo: 'Currículo (PDF)',
+      ariaNav: 'Contato, currículo e idioma',
+      curriculo: 'Currículo',
       email: 'E-mail',
+      copiarEmail: 'Copiar e-mail',
+      copiado: 'Copiado!',
+      lerMais: 'mais sobre mim',
+      terminal: 'Terminal com apresentação',
     },
-    sobre: 'sobre',
     stack: 'stack',
+    experiencia: 'experiência',
+    reconhecimentos: 'reconhecimentos',
     contato: {
       titulo: 'contato',
-      curriculos: 'Respondo rápido. O currículo em PDF está em três versões:',
-      feitoPor: 'feito por mim, em Next.js —',
-      codigoNoGitHub: 'o código está no GitHub',
+      frase: {
+        inicio: 'Estou à disposição para ',
+        destaque: 'backend, dados e visão computacional',
+        fim: '.',
+      },
+      curriculos: 'Currículo em três versões:',
+      cidade: 'Belo Horizonte',
+      codigoNoGitHub: 'código no GitHub',
     },
     caso: {
       voltar: '← voltar',
       secoes: {
-        problema: 'Problema',
-        abordagem: 'Abordagem',
-        decisoes: 'Decisões e trade-offs',
-        resultado: 'Resultado',
+        problema: 'problema',
+        abordagem: 'abordagem',
+        decisoes: 'decisões e trade-offs',
+        resultado: 'resultado',
       },
       verNoAr: 'Ver no ar',
       demoEmVideo: 'Demo em vídeo',
       repositorio: 'Repositório',
       capturas: 'Capturas do projeto',
+      proximoProjeto: 'próximo projeto',
+      conversar: 'Dúvida sobre este projeto? Me escreve:',
+      todosProjetos: 'todos os projetos',
     },
     // O rótulo do seletor fala a língua de destino: quem procura "EN"
     // provavelmente não lê português.
@@ -101,40 +129,53 @@ export const textos: Record<Idioma, Textos> = {
       rotulos: { dados: 'Data & AI', todos: 'All', dev: 'Dev' },
       aria: 'Filter projects by area',
     },
-    areas: { dados: 'Data & AI', dev: 'Dev' },
+    areas: { dados: 'data & AI', dev: 'dev' },
     projetos: {
       titulo: 'projects',
       umProjeto: 'project',
       variosProjetos: 'projects',
       outros: 'other projects',
-      meuPapel: 'My role:',
-      verCase: 'view case →',
+      meuPapel: 'Role:',
+      abrir: 'live ↗',
     },
     hero: {
-      ariaNav: 'Contact and résumé',
-      curriculo: 'Résumé (PDF)',
+      ariaNav: 'Contact, résumé and language',
+      curriculo: 'Résumé',
       email: 'Email',
+      copiarEmail: 'Copy email',
+      copiado: 'Copied!',
+      lerMais: 'more about me',
+      terminal: 'Terminal with introduction',
     },
-    sobre: 'about',
     stack: 'stack',
+    experiencia: 'experience',
+    reconhecimentos: 'recognition',
     contato: {
       titulo: 'contact',
-      curriculos: 'I reply fast. The résumé comes in three versions:',
-      feitoPor: 'built by me, with Next.js —',
-      codigoNoGitHub: 'the code is on GitHub',
+      frase: {
+        inicio: 'I’m available for ',
+        destaque: 'backend, data and computer vision',
+        fim: ' work.',
+      },
+      curriculos: 'Résumé in three versions:',
+      cidade: 'Belo Horizonte',
+      codigoNoGitHub: 'code on GitHub',
     },
     caso: {
       voltar: '← back',
       secoes: {
-        problema: 'Problem',
-        abordagem: 'Approach',
-        decisoes: 'Decisions & trade-offs',
-        resultado: 'Outcome',
+        problema: 'problem',
+        abordagem: 'approach',
+        decisoes: 'decisions & trade-offs',
+        resultado: 'outcome',
       },
       verNoAr: 'See it live',
       demoEmVideo: 'Video demo',
       repositorio: 'Repository',
       capturas: 'Project screenshots',
+      proximoProjeto: 'next project',
+      conversar: 'Questions about this project? Write me:',
+      todosProjetos: 'all projects',
     },
     idioma: { alvo: 'PT', rotuloLink: 'Ler esta página em português' },
   },
