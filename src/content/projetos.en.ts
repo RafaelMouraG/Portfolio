@@ -32,7 +32,7 @@ export const projetosEn: Projeto[] = [
       'A social reading network with web, mobile, and API on a production stack. I worked on the backend: user module, asynchronous notifications, AI assistant, and performance testing.',
     areas: ['dev'],
     papel:
-      'Team of six. Backend: user module, asynchronous notifications, AI assistant, and performance testing.',
+      'Team of six. Backend: user module, asynchronous notifications, AI assistant, and performance testing. Best in class.',
     stack: [
       'Java 25',
       'Spring Boot 4',
@@ -45,6 +45,11 @@ export const projetosEn: Projeto[] = [
       'Cloud Run',
     ],
     destaque: true,
+    imagem: {
+      src: '/biblioo-logo-branca.png',
+      alt: 'Biblioo logo',
+      ajuste: 'contain',
+    },
     links: {
       repo: 'https://github.com/RafaelMouraG/biblioo',
       demo: 'https://biblioo-rust.vercel.app/',
@@ -69,6 +74,10 @@ export const projetosEn: Projeto[] = [
     papel: 'Team of six, real client. Backend: communication layer and external integrations.',
     stack: ['Java 21', 'Spring Boot 4', 'MySQL', 'Apache PDFBox', 'Sicoob API', 'Focus NFe', 'Railway'],
     destaque: true,
+    imagem: {
+      src: '/hortifruti-banner.png',
+      alt: 'Hortifruti Santa Luzia brand',
+    },
     capturas: [
       {
         src: '/hortifruti-banner.png',
