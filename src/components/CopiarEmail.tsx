@@ -3,18 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 
 /*
- * Botão quadrado de copiar e-mail, ao lado do CTA de e-mail. Usa a Clipboard
- * API com fallback para execCommand, e troca o ícone por um check por 2s.
- * É um quadrado de 42px para alinhar a altura dos CTAs vizinhos.
+ * Botão de copiar e-mail em texto: "Copiar e-mail" vira "Copiado" por 2s.
+ * Usa a Clipboard API com fallback para execCommand. A aparência vem de
+ * quem usa (link discreto na coluna fixa, pílula no bloco de contato).
  */
 export function CopiarEmail({
   email,
   rotulo,
   copiadoRotulo,
+  className = "",
 }: {
   email: string;
   rotulo: string;
   copiadoRotulo: string;
+  className?: string;
 }) {
   const [copiado, setCopiado] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -46,15 +48,8 @@ export function CopiarEmail({
   }
 
   return (
-    <button
-      type="button"
-      onClick={copiar}
-      title={copiado ? copiadoRotulo : rotulo}
-      aria-label={copiado ? copiadoRotulo : rotulo}
-      aria-live="polite"
-      className="accent-transition grid size-[42px] shrink-0 place-items-center rounded-[9px] border border-border font-mono text-[14px] text-muted hover:border-border-strong hover:text-foreground"
-    >
-      <span aria-hidden>{copiado ? "✓" : "⧉"}</span>
+    <button type="button" onClick={copiar} aria-live="polite" className={className}>
+      {copiado ? copiadoRotulo : rotulo}
     </button>
   );
 }

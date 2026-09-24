@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 
 /*
- * Hora local de Belo Horizonte no rodapé, como no design. Só renderiza depois
- * de montar: o horário do servidor e o do primeiro paint divergiriam e o React
- * acusaria erro de hidratação. Enquanto isso o rodapé mostra só a cidade.
+ * Hora local de Belo Horizonte. Só renderiza depois de montar: o horário do
+ * servidor e o do primeiro paint divergiriam e o React acusaria erro de
+ * hidratação. Até lá, quem usa mostra só o prefixo da cidade.
  */
 export function HoraLocal({ locale }: { locale: string }) {
   const [hora, setHora] = useState<string | null>(null);
@@ -25,5 +25,5 @@ export function HoraLocal({ locale }: { locale: string }) {
   }, [locale]);
 
   if (!hora) return null;
-  return <> — {hora}</>;
+  return <> {hora}</>;
 }

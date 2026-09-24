@@ -2,28 +2,29 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Projeto } from "@/content/projetos";
 import { caminhoDaHome, caminhoDoCase, conteudo, textos, type Idioma } from "@/lib/i18n";
-import { AreaTag } from "./AreaTag";
-import { CapaProjeto } from "./CapaProjeto";
-import { SectionTitle } from "./SectionTitle";
+import { numeroDoProjeto } from "@/lib/filtro";
+import { Metrica } from "./Metrica";
 import { SeletorIdioma } from "./SeletorIdioma";
+import { Tela } from "./Tela";
 
 /*
  * Miolo da página de case, compartilhado pelas rotas /projetos/[slug] (pt)
  * e /en/projects/[slug] (en). As páginas resolvem o projeto no idioma certo
  * e delegam a renderização para cá.
  *
- * Segue a mesma métrica da home (coluna de 720px, blocos numerados) e usa a
- * serifa do design para o texto longo — é o trecho mais parecido com leitura
- * corrida do site inteiro, que é exatamente para o que o Newsreader entra.
+ * Mesma linguagem da home: o cabeçalho e o diagrama vivo dentro de um painel,
+ * e o texto longo em coluna de leitura, com o rótulo de cada parte numa
+ * coluna estreita à esquerda a partir de sm.
  */
 export function PaginaCase({ projeto, idioma }: { projeto: Projeto; idioma: Idioma }) {
   const t = textos[idioma].caso;
-  const tProjetos = textos[idioma].projetos;
 
   // Próximo projeto na ordem do conteúdo, dando a volta no fim da lista
   const { projetos, perfil } = conteudo[idioma];
+  const destaques = projetos.filter((p) => p.destaque);
   const indice = projetos.findIndex(({ slug }) => slug === projeto.slug);
   const proximo = projetos.length > 1 ? projetos[(indice + 1) % projetos.length] : null;
+  const numero = numeroDoProjeto(Math.max(0, destaques.findIndex(({ slug }) => slug === projeto.slug)));
   const email = perfil.links.email;
 
   const secoes = [
@@ -43,16 +44,11 @@ export function PaginaCase({ projeto, idioma }: { projeto: Projeto; idioma: Idio
   );
 
   return (
-    // data-accent marca a área do case; hoje não muda nada visualmente (a
-    // paleta é neutra), mas é o gancho para o dia em que a cor por área voltar.
-    <main
-      data-accent={projeto.areas[0]}
-      className="mx-auto flex w-full max-w-[720px] flex-col gap-[52px] px-7 pt-16 pb-24"
-    >
-      <div className="flex items-center justify-between gap-3">
+    <main className="mx-auto grid w-full max-w-[920px] gap-4 pt-6 pb-10 sm:gap-6">
+      <div className="flex items-center justify-between gap-3 px-2 py-2">
         <Link
           href={caminhoDaHome(idioma)}
-          className="accent-transition font-mono text-[11.5px] tracking-[0.04em] text-muted no-underline hover:text-gold"
+          className="font-mono text-xs text-ink-2 transition-colors hover:text-ink"
         >
           {t.voltar}
         </Link>
@@ -62,81 +58,68 @@ export function PaginaCase({ projeto, idioma }: { projeto: Projeto; idioma: Idio
         />
       </div>
 
-      <header className="flex flex-col gap-[18px]">
-        <div className="flex flex-wrap gap-3">
-          {projeto.areas.map((area) => (
-            <AreaTag key={area} area={area} idioma={idioma} />
-          ))}
+      <header className="grid gap-[18px] rounded-[22px] bg-panel p-3.5 sm:rounded-[28px] sm:p-5">
+        <Tela projeto={projeto} numero={numero} idioma={idioma} />
+
+        <div className="grid gap-x-6 gap-y-4 px-2 pb-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+          <div className="grid gap-3">
+            <h1 className="font-display text-[clamp(32px,4vw,52px)] leading-[1.02] font-light tracking-[-0.035em] text-balance">
+              {projeto.titulo}
+            </h1>
+            <p className="max-w-[58ch] text-pretty text-ink-2">{projeto.resumo}</p>
+          </div>
+          <Metrica
+            metrica={projeto.metrica}
+            idioma={idioma}
+            className="sm:justify-items-end sm:text-right"
+          />
         </div>
 
-        <h1 className="text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] text-balance sm:text-[40px]">
-          {projeto.titulo}
-        </h1>
-
-        <p className="font-serif text-[18px] leading-[1.58] text-pretty text-prose sm:text-[20px]">
-          {projeto.resumo}
-        </p>
-
-        {projeto.papel && (
-          <p className="text-[13.5px] leading-[1.5] text-faint">
-            <span className="text-muted">{tProjetos.meuPapel}</span> {projeto.papel}
-          </p>
-        )}
-
-        <p className="font-mono text-[11.5px] leading-[1.7] text-fainter">
-          {projeto.stack.map((item, i) => (
-            <span key={item}>
-              {i > 0 && <span aria-hidden className="text-dim"> · </span>}
-              {item}
-            </span>
-          ))}
-        </p>
-
-        {linksExternos.length > 0 && (
-          <ul className="mt-1 flex flex-wrap gap-2.5">
-            {linksExternos.map(({ label, href, primario }) => (
-              <li key={label}>
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={
-                    primario
-                      ? "accent-transition inline-block rounded-[9px] bg-foreground px-[18px] py-[11px] text-[14.5px] font-medium tracking-[-0.005em] text-background no-underline hover:bg-white"
-                      : "accent-transition inline-block rounded-[9px] border border-border px-[18px] py-[11px] text-[14.5px] font-medium tracking-[-0.005em] no-underline hover:border-border-strong"
-                  }
-                >
-                  {label}
-                </a>
+        <div className="grid gap-4 border-t border-line px-2 pt-4 pb-2">
+          {projeto.papel && (
+            <p className="text-[15px] text-pretty text-ink-2">
+              <span className="font-medium text-ink">{t.meuPapel}:</span> {projeto.papel}
+            </p>
+          )}
+          <ul className="flex flex-wrap gap-2">
+            {projeto.stack.map((item) => (
+              <li key={item} className="rounded-full border border-line px-3 py-1 text-[13px] text-ink-2">
+                {item}
               </li>
             ))}
           </ul>
-        )}
+          {linksExternos.length > 0 && (
+            <ul className="flex flex-wrap gap-2.5">
+              {linksExternos.map(({ label, href, primario }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-block rounded-full px-[18px] py-2.5 text-sm transition-colors ${
+                      primario
+                        ? "bg-ink text-bg hover:opacity-85"
+                        : "border border-line hover:border-ink-3"
+                    }`}
+                  >
+                    {label} ↗
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </header>
-
-      {/* Screenshot real fica em 16:9; a arte SVG, que é um desenho de linha
-          fina, ganha uma moldura mais baixa para não sobrar vazio em volta. */}
-      <div
-        className={`hachura relative grid place-items-center overflow-hidden rounded-xl border border-border bg-surface ${
-          projeto.imagem ? "aspect-[16/9]" : "aspect-[2/1]"
-        }`}
-      >
-        <CapaProjeto projeto={projeto} />
-      </div>
 
       {/* Capturas reais em galeria: retrato (celular) lado a lado com altura
           fixa, paisagem ocupando a largura toda */}
       {projeto.capturas && projeto.capturas.length > 0 && (
-        <section aria-label={t.capturas}>
+        <section aria-label={t.capturas} className="rounded-[22px] bg-panel p-3.5 sm:rounded-[28px] sm:p-5">
           <ul className="flex flex-wrap gap-4">
             {projeto.capturas.map(({ src, alt, largura, altura }) => (
               <li
                 key={src}
-                className={
-                  altura > largura
-                    ? "overflow-hidden rounded-xl border border-border bg-surface"
-                    : "w-full overflow-hidden rounded-xl border border-border bg-surface"
-                }
+                className={`overflow-hidden rounded-[14px] bg-bg ${altura > largura ? "" : "w-full"}`}
               >
                 <Image
                   src={src}
@@ -151,20 +134,20 @@ export function PaginaCase({ projeto, idioma }: { projeto: Projeto; idioma: Idio
         </section>
       )}
 
-      <article className="flex flex-col gap-[42px]">
-        {secoes.map(({ titulo, texto }, indice) => (
+      <article className="grid gap-10 rounded-[22px] bg-panel p-6 sm:rounded-[28px] sm:p-10">
+        {secoes.map(({ titulo, texto }, i) => (
           <section
             key={titulo}
-            aria-labelledby={`case-secao-${indice}`}
-            className="flex flex-col gap-[18px]"
+            aria-labelledby={`case-secao-${i}`}
+            className="grid gap-3 sm:grid-cols-[170px_minmax(0,1fr)] sm:gap-8"
           >
-            <SectionTitle
-              id={`case-secao-${indice}`}
-              numero={String(indice + 1).padStart(2, "0")}
-            >
+            <h2 id={`case-secao-${i}`} className="font-mono text-xs text-ink-2 sm:pt-1.5">
+              <span aria-hidden className="text-accent">
+                {String(i + 1).padStart(2, "0")}
+              </span>{" "}
               {titulo}
-            </SectionTitle>
-            <p className="font-serif text-[18px] leading-[1.62] text-pretty text-prose sm:text-[19px]">
+            </h2>
+            <p className="max-w-[64ch] text-[17px] leading-[1.65] text-pretty sm:text-[18px]">
               {texto}
             </p>
           </section>
@@ -173,41 +156,39 @@ export function PaginaCase({ projeto, idioma }: { projeto: Projeto; idioma: Idio
 
       {/* Quem leu o case até o fim é o leitor mais interessado: em vez de a
           página acabar em nada, ele ganha o próximo projeto e o e-mail. */}
-      <footer className="flex flex-col gap-5 border-t border-border-soft pt-[26px]">
+      <footer className="grid gap-4">
         {proximo && (
           <Link
             href={caminhoDoCase(idioma, proximo.slug)}
-            className="group flex items-baseline justify-between gap-5 no-underline"
+            className="group flex items-end justify-between gap-5 rounded-[22px] bg-ink p-6 text-bg sm:rounded-[28px] sm:p-10"
           >
-            <span className="flex flex-col gap-[5px]">
-              <span className="font-mono text-[11px] tracking-[0.06em] text-faint uppercase">
-                {t.proximoProjeto}
-              </span>
-              <span className="text-[17px] font-medium tracking-[-0.01em] text-foreground">
+            <span className="grid gap-1.5">
+              <span className="font-mono text-xs text-bg/70">{t.proximoProjeto}</span>
+              <span className="font-display text-[clamp(26px,3vw,40px)] leading-[1.05] font-light tracking-[-0.035em]">
                 {proximo.titulo}
               </span>
             </span>
             <span
               aria-hidden
-              className="accent-transition shrink-0 font-mono text-[13px] text-fainter group-hover:text-gold"
+              className="shrink-0 text-2xl transition-transform group-hover:translate-x-1 motion-reduce:transition-none"
             >
               →
             </span>
           </Link>
         )}
 
-        <p className="font-mono text-[11.5px] leading-[1.8] text-faint">
+        <p className="px-2 font-mono text-xs leading-[1.8] text-ink-2">
           {t.conversar}{" "}
           <a
             href={`mailto:${email}`}
-            className="underline decoration-border-strong hover:text-gold hover:decoration-gold"
+            className="underline decoration-line underline-offset-[3px] transition-colors hover:text-ink hover:decoration-accent"
           >
             {email}
           </a>
-          <span aria-hidden className="text-dim"> · </span>
+          {" · "}
           <Link
             href={caminhoDaHome(idioma)}
-            className="underline decoration-border-strong hover:text-gold hover:decoration-gold"
+            className="underline decoration-line underline-offset-[3px] transition-colors hover:text-ink hover:decoration-accent"
           >
             {t.todosProjetos}
           </Link>

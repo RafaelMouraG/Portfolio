@@ -1,13 +1,10 @@
 import { conteudo, textos, type Idioma } from "@/lib/i18n";
-import { HoraLocal } from "./HoraLocal";
+import { CopiarEmail } from "./CopiarEmail";
 
 /*
- * Fechamento do design: uma frase grande em serifa itálica e o e-mail como o
- * único botão da tela. Não leva numeral de seção — no design essa parte é o
- * desfecho, não mais um item da lista.
- *
- * O miolo da frase era dourado; com a paleta neutra, o destaque vira peso:
- * a frase é light e o trecho destacado é regular.
+ * Fechamento: o único painel invertido da página (tinta no fundo, névoa no
+ * texto). Uma pergunta curta, o e-mail em corpo grande e selecionável com o
+ * botão de copiar, e as três versões do currículo. Embaixo, o rodapé mínimo.
  */
 export function Contato({ idioma }: { idioma: Idioma }) {
   const { perfil } = conteudo[idioma];
@@ -15,72 +12,56 @@ export function Contato({ idioma }: { idioma: Idioma }) {
 
   return (
     <>
-      <section aria-labelledby="contato-titulo" className="flex flex-col gap-[22px] pt-14 text-center">
-        <h2 id="contato-titulo" className="sr-only">
-          {t.titulo}
+      <section
+        id="contato"
+        aria-labelledby="contato-titulo"
+        className="grid scroll-mt-6 gap-7 rounded-[22px] bg-ink p-6 text-bg sm:rounded-[28px] sm:p-10"
+      >
+        <h2
+          id="contato-titulo"
+          className="max-w-[22ch] font-display text-[clamp(28px,2.8vw,40px)] leading-[1.08] font-light tracking-[-0.035em] text-balance"
+        >
+          {t.frase}
         </h2>
 
-        <p className="font-serif text-[34px] leading-[1.15] font-light tracking-[-0.01em] text-balance italic sm:text-[44px]">
-          {t.frase.inicio}
-          <span className="font-normal">{t.frase.destaque}</span>
-          {t.frase.fim}
-        </p>
-
-        <div>
+        <div className="flex flex-wrap items-center justify-between gap-3.5 border-t border-bg/20 pt-6">
           <a
             href={`mailto:${perfil.links.email}`}
-            className="accent-transition inline-block rounded-[10px] bg-foreground px-[26px] py-[13px] text-[15px] font-medium break-all text-background no-underline hover:bg-white"
+            className="font-display text-[clamp(18px,2.2vw,30px)] font-light tracking-[-0.02em] break-all transition-colors hover:text-accent"
           >
             {perfil.links.email}
           </a>
+          <CopiarEmail
+            email={perfil.links.email}
+            rotulo={t.copiar}
+            copiadoRotulo={t.copiado}
+            className="cursor-pointer rounded-full bg-bg px-[18px] py-[11px] text-sm text-ink transition-opacity hover:opacity-85"
+          />
         </div>
 
-        <p className="font-mono text-[11.5px] leading-[1.8] text-faint">
-          {t.curriculos}{" "}
-          {perfil.curriculos.map(({ rotulo, href }, i) => (
-            <span key={href}>
-              {i > 0 && <span aria-hidden className="text-dim"> · </span>}
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline decoration-border-strong hover:text-gold hover:decoration-gold"
-              >
-                {rotulo}
+        <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-bg/75">
+          {perfil.curriculos.map(({ rotulo, href }) => (
+            <li key={href}>
+              <a href={href} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-bg">
+                {rotulo} ↗
               </a>
-            </span>
+            </li>
           ))}
-        </p>
+        </ul>
       </section>
 
-      {/* Assinatura de encerramento: o primeiro nome em contorno gigante,
-          full-bleed e decorativo (aria-hidden, o h2 sr-only acima já nomeia
-          a seção). overflow-clip + overflow-x clip no body evitam scroll
-          horizontal do truque w-screen. */}
-      <div
-        aria-hidden
-        className="pointer-events-none relative left-1/2 w-screen -translate-x-1/2 overflow-clip select-none"
-      >
-        <p className="contorno-gigante text-center text-[24vw] leading-[0.9] font-semibold tracking-[-0.04em] whitespace-nowrap sm:text-[190px]">
-          {perfil.nome.split(" ")[0].toUpperCase()}
-        </p>
-      </div>
-
-      <footer className="flex flex-wrap items-baseline justify-between gap-5 border-t border-border-soft pt-[26px] font-mono text-[11.5px] leading-[1.6] text-fainter">
-        <span>
-          {t.cidade}
-          <HoraLocal locale={idioma === "pt" ? "pt-BR" : "en-GB"} />
-        </span>
+      <footer className="flex flex-wrap justify-between gap-3 px-2 pt-2 font-mono text-xs text-ink-2">
+        <span>{perfil.cidade}</span>
         <span>
           <a
             href={perfil.links.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="underline decoration-border-strong hover:text-gold hover:decoration-gold"
+            className="underline decoration-line underline-offset-[3px] transition-colors hover:text-ink hover:decoration-accent"
           >
             {t.codigoNoGitHub}
-          </a>
-          <span aria-hidden className="text-dim"> · </span>© {new Date().getFullYear()}
+          </a>{" "}
+          · © {new Date().getFullYear()}
         </span>
       </footer>
     </>

@@ -2,9 +2,9 @@
 
 Portfólio pessoal em duas frentes que contam uma história só: dados/IA e desenvolvimento.
 
-**Stack**: Next.js (App Router) · TypeScript · Tailwind CSS · Framer Motion. Sem CMS, sem banco: o conteúdo vive em arquivos TypeScript versionados.
+**Stack**: Next.js (App Router) · TypeScript · Tailwind CSS. Sem CMS, sem banco: o conteúdo vive em arquivos TypeScript versionados.
 
-**Tipografia**: Space Grotesk (interface e títulos) · Newsreader (prosa, em itálico) · JetBrains Mono (rótulos, números e metadados).
+**Tipografia**: Funnel Display (títulos e números grandes, quase sempre em peso leve) · Funnel Sans (texto e interface) · Geist Mono (etiquetas, legendas e rótulos dos diagramas).
 
 ## Rodando
 
@@ -17,15 +17,16 @@ npm run dev
 
 Todo o código fica em `src/` (`src/app`, `src/components`, `src/content`, `src/lib`); a raiz guarda só configuração e `public/`. O alias `@/` aponta para `src/`.
 
-- `src/content/perfil.ts` — nome, posicionamento, sobre, links, stack e outros projetos. Em `posicionamentoRico`, `area` pinta o trecho com a cor da área e `enfase: true` marca o trecho que sai em serifa itálica no cabeçalho (um por frase). `techsPrincipais` alimenta a esteira que corre abaixo do cabeçalho — oito itens dão volta suficiente para o laço não parecer curto.
-- `src/content/projetos.ts` — fonte única dos projetos. Adicionar um projeto é adicionar um objeto; card, filtro e página de case derivam dele. O build emite warning se qualquer filtro de área ficar com menos de 2 projetos.
+- `src/content/perfil.ts`: nome, tese da coluna fixa (`tese.forte` em tinta cheia, `tese.suave` em cinza), status, bloco "Sobre", links, currículos, linha do tempo, prêmios e outros projetos. `techsPrincipais` vira as etiquetas de stack do "Sobre".
+- `src/content/projetos.ts`: fonte única dos projetos. Adicionar um projeto é adicionar um objeto; painel, índice, filtro e página de case derivam dele. Cada projeto traz uma `linha` (a frase do card), a `metrica` de destaque (com `antes` opcional, que sai riscado), o `contexto` ("solo", "equipe de 6") e a `legenda` do diagrama. O diagrama em si mora em `components/DiagramaVivo.tsx`, um por slug; slug novo sem diagrama cai num genérico. O build emite warning se qualquer filtro de área ficar com menos de 2 projetos.
 - `src/content/perfil.en.ts` e `src/content/projetos.en.ts` — as versões em inglês, com o mesmo tipo dos originais: se a estrutura divergir, o compilador acusa. Ao editar um conteúdo, edite o par.
 
 ## Decisões que valem registro
 
-- **Filtro por área com estado na URL**: `/?area=dev` e `/?area=dados` abrem a grade já filtrada no HTML — a home renderiza no servidor lendo `searchParams`, então um link filtrado enviado numa candidatura mostra a primeira tela certa, sem flash.
-- **Escuro e só**: a paleta é preto quente (`#0b0b0a`), texto osso e um dourado. Não há tema claro — é uma escolha do design, não uma pendência, por isso `:root` já é o tema final e `color-scheme: dark` avisa o navegador.
-- **Duas variáveis de cor com papéis separados**: `--gold` é fixo e é a cor da casa (numeral das seções, hover de link, seleção, ponto de disponibilidade). `--accent` é trocável por área e só é consumido por filtro, cards, tags e página de case — dados veste o dourado, dev veste o verde, "Todos" veste osso. É o que deixa o site colorir por área sem virar arco-íris.
-- **A bio mora no cabeçalho**: não existe seção "sobre". Nome, posicionamento, atalhos, bio em serifa e os dois botões são um bloco só, e as seções numeradas começam nos projetos.
-- **Acessibilidade como requisito**: o filtro é um radio group navegável por setas, o estado ativo nunca depende só de cor, a contagem de resultados é anunciada por `aria-live` e todas as animações são cortadas sob `prefers-reduced-motion`.
-- **Versão em inglês por rota, não por toggle de estado**: `/en` e `/en/projects/[slug]` são páginas de verdade — indexáveis, com `hreflang` cruzado e `<html lang>` correto via dois route groups com layout raiz próprio. Um link `/en` enviado numa candidatura internacional abre direto no idioma certo, e o seletor PT/EN preserva o filtro ativo.
+- **Diagramas vivos no lugar de capas**: cada projeto é mostrado funcionando, não descrito. Uma animação em traço fino mostra o mecanismo que o case explica (a notificação gravada antes do fanout, a folha que fica abaixo do limiar, o extrato conciliado, o evento repetido descartado, o nó-ponte da rede). As partículas usam SMIL, então rodam já no HTML do servidor, sem JS.
+- **Coluna fixa e palco que rola**: a partir de `lg`, a tese, o filtro, o índice e os links ficam parados à esquerda enquanto os projetos passam à direita. O índice acompanha a rolagem com um IntersectionObserver. No celular a coluna vira cabeçalho e o índice some, porque os projetos já vêm logo abaixo.
+- **Filtro por área com estado na URL**: `/?area=dev` e `/?area=dados` abrem a lista já filtrada no HTML, porque a home renderiza no servidor lendo `searchParams`. Um link filtrado enviado numa candidatura mostra a primeira tela certa, sem flash. A coluna fixa e a lista leem o mesmo parâmetro, então ficam em sincronia sem estado compartilhado.
+- **Paleta névoa com um laranja só**: cinza frio claro, painéis quase brancos e tinta quase preta. O laranja é reservado ao que está vivo (partículas, o ponto de status, a métrica corrigida e o foco), nunca à decoração. O tema segue o sistema: claro por padrão e escuro sob `prefers-color-scheme`, com os componentes consumindo só os tokens de `globals.css`.
+- **Métrica honesta à vista**: quando um número foi corrigido, o antigo aparece riscado ao lado do novo (98,5% → 74,6% no AtlasLeaf). A correção é parte da história.
+- **Acessibilidade como requisito**: o filtro é um radio group navegável por setas, o estado ativo nunca depende só de cor, os diagramas são decorativos (`aria-hidden`, com a legenda em texto) e, sob `prefers-reduced-motion`, as animações CSS param num quadro que ainda conta a história e os SVGs são pausados.
+- **Versão em inglês por rota, não por toggle de estado**: `/en` e `/en/projects/[slug]` são páginas de verdade, indexáveis, com `hreflang` cruzado e `<html lang>` correto via dois route groups com layout raiz próprio. Um link `/en` enviado numa candidatura internacional abre direto no idioma certo, e o seletor PT/EN preserva o filtro ativo.
