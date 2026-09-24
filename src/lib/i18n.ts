@@ -23,38 +23,29 @@ export function caminhoDoCase(idioma: Idioma, slug: string): string {
 type Textos = {
   filtro: { rotulos: Record<Area | 'todos', string>; aria: string }
   areas: Record<Area, string>
-  projetos: {
-    titulo: string
-    umProjeto: string
-    variosProjetos: string
-    outros: string
-    meuPapel: string
-    abrir: string
-  }
-  hero: {
-    ariaNav: string
+  painel: {
+    ariaIndice: string
+    ariaLinks: string
     curriculo: string
-    email: string
     copiarEmail: string
     copiado: string
-    lerMais: string
-    terminal: string
+    sobre: string
+    contato: string
+    cidadeCurta: string
   }
-  stack: string
-  experiencia: string
-  reconhecimentos: string
+  projetos: { titulo: string; lerCase: string; abrir: string; antes: string }
+  sobre: { stack: string; outros: string }
   contato: {
-    titulo: string
-    // A frase de fechamento é quebrada em três porque o miolo ganha peso
-    // (era dourado no design). Traduzir sempre os três pedaços juntos.
-    frase: { inicio: string; destaque: string; fim: string }
-    curriculos: string
-    cidade: string
+    // O fechamento é uma pergunta curta, em corpo grande.
+    frase: string
+    copiar: string
+    copiado: string
     codigoNoGitHub: string
   }
   caso: {
     voltar: string
     secoes: { problema: string; abordagem: string; decisoes: string; resultado: string }
+    meuPapel: string
     verNoAr: string
     demoEmVideo: string
     repositorio: string
@@ -63,55 +54,59 @@ type Textos = {
     conversar: string
     todosProjetos: string
   }
+  // Rótulos desenhados dentro dos diagramas vivos (components/DiagramaVivo).
+  diagrama: {
+    banco: string
+    web: string
+    mobile: string
+    limiar: string
+    confiante: [string, string]
+    abstencao: [string, string]
+    extrato: string
+    lancamentos: string
+    eventos: string
+    contratacao: string
+    comunidadeA: string
+    comunidadeB: string
+    popularidade: string
+  }
   idioma: { alvo: string; rotuloLink: string }
 }
 
 export const textos: Record<Idioma, Textos> = {
   pt: {
     filtro: {
-      rotulos: { dados: 'Dados e IA', todos: 'Todos', dev: 'Dev' },
+      rotulos: { todos: 'Tudo', dev: 'Backend', dados: 'Dados e IA' },
       aria: 'Filtrar projetos por área',
     },
-    areas: { dados: 'dados e IA', dev: 'dev' },
-    projetos: {
-      titulo: 'projetos',
-      umProjeto: 'projeto',
-      variosProjetos: 'projetos',
-      outros: 'outros projetos',
-      meuPapel: 'Papel:',
-      abrir: 'no ar ↗',
-    },
-    hero: {
-      ariaNav: 'Contato, currículo e idioma',
+    areas: { dados: 'dados e ia', dev: 'backend' },
+    painel: {
+      ariaIndice: 'Projetos e seções',
+      ariaLinks: 'Contato, currículo e idioma',
       curriculo: 'Currículo',
-      email: 'E-mail',
       copiarEmail: 'Copiar e-mail',
-      copiado: 'Copiado!',
-      lerMais: 'mais sobre mim',
-      terminal: 'Terminal com apresentação',
+      copiado: 'Copiado',
+      sobre: 'Sobre',
+      contato: 'Contato',
+      cidadeCurta: 'BH',
     },
-    stack: 'stack',
-    experiencia: 'experiência',
-    reconhecimentos: 'reconhecimentos',
+    projetos: { titulo: 'Projetos', lerCase: 'Ler o case', abrir: 'no ar ↗', antes: 'antes' },
+    sobre: { stack: 'Stack principal', outros: 'outros projetos' },
     contato: {
-      titulo: 'contato',
-      frase: {
-        inicio: 'Estou à disposição para ',
-        destaque: 'backend, dados e visão computacional',
-        fim: '.',
-      },
-      curriculos: 'Currículo em três versões:',
-      cidade: 'Belo Horizonte',
+      frase: 'Vamos construir algo que não cai?',
+      copiar: 'Copiar e-mail',
+      copiado: 'Copiado',
       codigoNoGitHub: 'código no GitHub',
     },
     caso: {
       voltar: '← voltar',
       secoes: {
-        problema: 'problema',
-        abordagem: 'abordagem',
-        decisoes: 'decisões e trade-offs',
-        resultado: 'resultado',
+        problema: 'Problema',
+        abordagem: 'Abordagem',
+        decisoes: 'Decisões e trade-offs',
+        resultado: 'Resultado',
       },
+      meuPapel: 'Meu papel',
       verNoAr: 'Ver no ar',
       demoEmVideo: 'Demo em vídeo',
       repositorio: 'Repositório',
@@ -120,55 +115,58 @@ export const textos: Record<Idioma, Textos> = {
       conversar: 'Dúvida sobre este projeto? Me escreve:',
       todosProjetos: 'todos os projetos',
     },
+    diagrama: {
+      banco: 'banco',
+      web: 'web · SSE',
+      mobile: 'mobile · FCM',
+      limiar: 'limiar',
+      confiante: ['ferrugem', 'confiança 0,91'],
+      abstencao: ['não sei', 'vai para revisão'],
+      extrato: 'extrato.pdf',
+      lancamentos: 'lançamentos',
+      eventos: 'eventos',
+      contratacao: 'contratação',
+      comunidadeA: 'urbano latino',
+      comunidadeB: 'hip-hop EUA',
+      popularidade: 'popularidade 84',
+    },
     // O rótulo do seletor fala a língua de destino: quem procura "EN"
     // provavelmente não lê português.
     idioma: { alvo: 'EN', rotuloLink: 'Read this page in English' },
   },
   en: {
     filtro: {
-      rotulos: { dados: 'Data & AI', todos: 'All', dev: 'Dev' },
+      rotulos: { todos: 'All', dev: 'Backend', dados: 'Data & AI' },
       aria: 'Filter projects by area',
     },
-    areas: { dados: 'data & AI', dev: 'dev' },
-    projetos: {
-      titulo: 'projects',
-      umProjeto: 'project',
-      variosProjetos: 'projects',
-      outros: 'other projects',
-      meuPapel: 'Role:',
-      abrir: 'live ↗',
-    },
-    hero: {
-      ariaNav: 'Contact, résumé and language',
+    areas: { dados: 'data & ai', dev: 'backend' },
+    painel: {
+      ariaIndice: 'Projects and sections',
+      ariaLinks: 'Contact, résumé and language',
       curriculo: 'Résumé',
-      email: 'Email',
       copiarEmail: 'Copy email',
-      copiado: 'Copied!',
-      lerMais: 'more about me',
-      terminal: 'Terminal with introduction',
+      copiado: 'Copied',
+      sobre: 'About',
+      contato: 'Contact',
+      cidadeCurta: 'BH',
     },
-    stack: 'stack',
-    experiencia: 'experience',
-    reconhecimentos: 'recognition',
+    projetos: { titulo: 'Projects', lerCase: 'Read the case', abrir: 'live ↗', antes: 'previously' },
+    sobre: { stack: 'Main stack', outros: 'other projects' },
     contato: {
-      titulo: 'contact',
-      frase: {
-        inicio: 'I’m available for ',
-        destaque: 'backend, data and computer vision',
-        fim: ' work.',
-      },
-      curriculos: 'Résumé in three versions:',
-      cidade: 'Belo Horizonte',
+      frase: 'Shall we build something that doesn’t fall over?',
+      copiar: 'Copy email',
+      copiado: 'Copied',
       codigoNoGitHub: 'code on GitHub',
     },
     caso: {
       voltar: '← back',
       secoes: {
-        problema: 'problem',
-        abordagem: 'approach',
-        decisoes: 'decisions & trade-offs',
-        resultado: 'outcome',
+        problema: 'Problem',
+        abordagem: 'Approach',
+        decisoes: 'Decisions & trade-offs',
+        resultado: 'Outcome',
       },
+      meuPapel: 'My role',
       verNoAr: 'See it live',
       demoEmVideo: 'Video demo',
       repositorio: 'Repository',
@@ -176,6 +174,21 @@ export const textos: Record<Idioma, Textos> = {
       proximoProjeto: 'next project',
       conversar: 'Questions about this project? Write me:',
       todosProjetos: 'all projects',
+    },
+    diagrama: {
+      banco: 'database',
+      web: 'web · SSE',
+      mobile: 'mobile · FCM',
+      limiar: 'threshold',
+      confiante: ['rust', 'confidence 0.91'],
+      abstencao: ['not sure', 'sent to review'],
+      extrato: 'statement.pdf',
+      lancamentos: 'ledger',
+      eventos: 'events',
+      contratacao: 'hiring',
+      comunidadeA: 'latin urban',
+      comunidadeB: 'US hip-hop',
+      popularidade: 'popularity 84',
     },
     idioma: { alvo: 'PT', rotuloLink: 'Ler esta página em português' },
   },

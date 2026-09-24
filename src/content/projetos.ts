@@ -3,20 +3,27 @@ export type Area = 'dados' | 'dev'
 export type Projeto = {
   slug: string
   titulo: string
+  // Nome no índice lateral quando o título é longo demais para uma linha.
+  nomeCurto?: string
+  // Uma frase só, a que vai no card da home. O `resumo`, mais longo, fica
+  // para a página de case e os metadados.
+  linha: string
+  // Etiqueta curta ao lado da área no card: "solo", "equipe de 6"...
+  contexto: string
+  // O número de destaque do card. `antes` sai riscado ao lado do valor:
+  // serve para correção honesta de métrica, não para enfeite.
+  metrica: { valor: string; antes?: string; rotulo: string }
+  // Legenda do diagrama vivo (components/DiagramaVivo): o que a animação mostra.
+  legenda: string
   resumo: string
   areas: Area[]
   stack: string[]
   destaque: boolean
-  // Preencher só em projeto de equipe. Renderizar como linha discreta no card
-  // e no topo do case, com rótulo "Meu papel".
+  // Preencher só em projeto de equipe. Renderizar como linha discreta no topo
+  // do case, com rótulo "Meu papel".
   papel?: string
-  // Screenshot real do projeto (arquivo em public/). Enquanto vazio, o card e
-  // o case usam a arte SVG do slug em components/CapaProjeto.
-  // `ajuste`: cover preenche o quadro (padrão), contain veste logos com
-  // respiro, cover-topo ancora retrato (celular) no topo em vez do centro.
-  imagem?: { src: string; alt: string; ajuste?: 'cover' | 'contain' | 'cover-topo' }
   // Capturas exibidas em galeria na página de case (não no card). Ideal para
-  // screenshot de celular, que não cabe no formato 16:9 da capa.
+  // screenshot de celular.
   capturas?: Array<{ src: string; alt: string; largura: number; altura: number }>
   links: { repo?: string; demo?: string; video?: string }
   case: {
@@ -31,6 +38,11 @@ export const projetos: Projeto[] = [
   {
     slug: 'atlasleaf',
     titulo: 'AtlasLeaf',
+    linha:
+      'Classificador de doenças foliares de soja. Refiz a avaliação por câmera para medir o que de fato generaliza.',
+    contexto: 'solo',
+    metrica: { valor: '74,6%', antes: '98,5%', rotulo: 'em câmera nunca vista' },
+    legenda: 'abaixo do limiar, o modelo se abstém',
     resumo:
       'Classificador de sete doenças foliares de soja que sabe quando não sabe: abaixo do limiar de confiança, o caso é deferido para revisão humana.',
     // TROCAR para ['dados', 'dev'] assim que a API estiver no ar.
@@ -56,6 +68,11 @@ export const projetos: Projeto[] = [
   {
     slug: 'biblioo',
     titulo: 'Biblioo',
+    linha:
+      'Rede social de leitura. Fui dono de usuários, notificações assíncronas, assistente de IA e testes de carga.',
+    contexto: 'equipe de 6',
+    metrica: { valor: '71', rotulo: 'testes de carga em k6' },
+    legenda: 'persiste antes de distribuir: se a fila cair, nada se perde',
     resumo:
       'Rede social de leitura com web, mobile e API em stack de produção. Atuei no backend: módulo de usuários, notificações assíncronas, assistente de IA e testes de performance.',
     areas: ['dev'],
@@ -73,11 +90,6 @@ export const projetos: Projeto[] = [
       'Cloud Run',
     ],
     destaque: true,
-    imagem: {
-      src: '/biblioo-logo-branca.png',
-      alt: 'Logotipo do Biblioo',
-      ajuste: 'contain',
-    },
     links: {
       repo: 'https://github.com/RafaelMouraG/biblioo',
       demo: 'https://biblioo-rust.vercel.app/',
@@ -96,16 +108,17 @@ export const projetos: Projeto[] = [
   {
     slug: 'hortifruti-santa-luzia',
     titulo: 'Hortifruti Santa Luzia',
+    linha:
+      'Boleto, conciliação bancária e nota fiscal para um hortifruti de verdade, do kick-off ao treinamento.',
+    contexto: 'cliente real',
+    metrica: { valor: '2h → 10min', rotulo: 'por dia gerando boletos' },
+    legenda: 'extrato de dois bancos, um formato só',
     resumo:
       'Sistema de gestão para um hortifruti real, com atendimento por WhatsApp, boleto, conciliação bancária e emissão fiscal. Backend e integrações.',
     areas: ['dev'],
     papel: 'Equipe de seis, cliente real. Backend: camada de comunicação e integrações externas.',
     stack: ['Java 21', 'Spring Boot 4', 'MySQL', 'Apache PDFBox', 'API Sicoob', 'Focus NFe', 'Railway'],
     destaque: true,
-    imagem: {
-      src: '/hortifruti-banner.png',
-      alt: 'Marca do Hortifruti Santa Luzia',
-    },
     capturas: [
       {
         src: '/hortifruti-banner.png',
@@ -134,6 +147,11 @@ export const projetos: Projeto[] = [
   {
     slug: 'fieldflow',
     titulo: 'FieldFlow',
+    linha:
+      'Marketplace de serviços agrícolas em que a contratação roda por eventos. API, workers e app, feitos sozinho.',
+    contexto: 'solo',
+    metrica: { valor: 'event_id', rotulo: 'idempotência no consumidor' },
+    legenda: 'evento repetido não vira contratação repetida',
     resumo:
       'Marketplace de serviços agrícolas onde a contratação roda por eventos assíncronos. API e app mobile, construído sozinho.',
     areas: ['dev'],
@@ -171,6 +189,12 @@ export const projetos: Projeto[] = [
   {
     slug: 'biblioteca-de-grafos',
     titulo: 'Biblioteca de grafos e rede de similaridade musical',
+    nomeCurto: 'Rede musical',
+    linha:
+      'Biblioteca de grafos com uma API sobre duas representações, testada numa rede real do Spotify.',
+    contexto: 'equipe de 5',
+    metrica: { valor: '156 mil', rotulo: 'artistas analisados' },
+    legenda: 'o mais central não é o mais popular',
     resumo:
       'Biblioteca de grafos direcionados com API única sobre duas representações internas, validada numa rede de similaridade entre 156 mil artistas do Spotify e 300 mil colaborações reais.',
     areas: ['dados'],

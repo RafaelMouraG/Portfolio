@@ -6,6 +6,11 @@ export const projetosEn: Projeto[] = [
   {
     slug: 'atlasleaf',
     titulo: 'AtlasLeaf',
+    linha:
+      'A soybean leaf disease classifier. I rebuilt the evaluation by camera to measure what actually generalizes.',
+    contexto: 'solo',
+    metrica: { valor: '74.6%', antes: '98.5%', rotulo: 'on cameras never seen' },
+    legenda: 'below the threshold, the model abstains',
     resumo:
       'A classifier for seven soybean leaf diseases that knows when it does not know: below the confidence threshold, the case is deferred to human review.',
     areas: ['dados'],
@@ -28,6 +33,11 @@ export const projetosEn: Projeto[] = [
   {
     slug: 'biblioo',
     titulo: 'Biblioo',
+    linha:
+      'A social reading network. I owned users, async notifications, the AI assistant and load testing.',
+    contexto: 'team of 6',
+    metrica: { valor: '71', rotulo: 'k6 load tests' },
+    legenda: 'persist before fanning out: if the queue drops, nothing is lost',
     resumo:
       'A social reading network with web, mobile, and API on a production stack. I worked on the backend: user module, asynchronous notifications, AI assistant, and performance testing.',
     areas: ['dev'],
@@ -45,11 +55,6 @@ export const projetosEn: Projeto[] = [
       'Cloud Run',
     ],
     destaque: true,
-    imagem: {
-      src: '/biblioo-logo-branca.png',
-      alt: 'Biblioo logo',
-      ajuste: 'contain',
-    },
     links: {
       repo: 'https://github.com/RafaelMouraG/biblioo',
       demo: 'https://biblioo-rust.vercel.app/',
@@ -68,16 +73,17 @@ export const projetosEn: Projeto[] = [
   {
     slug: 'hortifruti-santa-luzia',
     titulo: 'Hortifruti Santa Luzia',
+    linha:
+      'Boletos, bank reconciliation and e-invoices for a real produce store, from kick-off to training.',
+    contexto: 'real client',
+    metrica: { valor: '2h → 10min', rotulo: 'per day generating boletos' },
+    legenda: 'statements from two banks, one format',
     resumo:
       'Management system for a real fresh-produce retailer, with WhatsApp customer service, payment slips, bank reconciliation, and invoice issuance. Backend and integrations.',
     areas: ['dev'],
     papel: 'Team of six, real client. Backend: communication layer and external integrations.',
     stack: ['Java 21', 'Spring Boot 4', 'MySQL', 'Apache PDFBox', 'Sicoob API', 'Focus NFe', 'Railway'],
     destaque: true,
-    imagem: {
-      src: '/hortifruti-banner.png',
-      alt: 'Hortifruti Santa Luzia brand',
-    },
     capturas: [
       {
         src: '/hortifruti-banner.png',
@@ -104,6 +110,11 @@ export const projetosEn: Projeto[] = [
   {
     slug: 'fieldflow',
     titulo: 'FieldFlow',
+    linha:
+      'An agricultural services marketplace where hiring runs on events. API, workers and app, built alone.',
+    contexto: 'solo',
+    metrica: { valor: 'event_id', rotulo: 'idempotency at the consumer' },
+    legenda: 'a repeated event never becomes a repeated hire',
     resumo:
       'An agricultural services marketplace where hiring runs on asynchronous events. API and mobile app, built solo.',
     areas: ['dev'],
@@ -141,6 +152,12 @@ export const projetosEn: Projeto[] = [
   {
     slug: 'biblioteca-de-grafos',
     titulo: 'Graph library and musical similarity network',
+    nomeCurto: 'Music network',
+    linha:
+      'A graph library with one API over two representations, tested on a real Spotify network.',
+    contexto: 'team of 5',
+    metrica: { valor: '156k', rotulo: 'artists analyzed' },
+    legenda: 'the most central is not the most popular',
     resumo:
       'A directed-graph library with a single API over two internal representations, validated on a similarity network of 156 thousand Spotify artists and 300 thousand real collaborations.',
     areas: ['dados'],

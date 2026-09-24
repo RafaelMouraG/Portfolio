@@ -1,49 +1,43 @@
 import type { ReactNode } from "react";
-import { Space_Grotesk, Newsreader, JetBrains_Mono } from "next/font/google";
+import { Funnel_Display, Funnel_Sans, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { perfil } from "@/content/perfil";
-import { BarraProgresso } from "./BarraProgresso";
-import { Topografia } from "./Topografia";
 import { EasterEgg } from "./EasterEgg";
 
 /*
- * As três vozes do design: Space Grotesk carrega a interface e os títulos,
- * Newsreader entra em itálico para a prosa (bio, texto dos cases, frase de
- * fechamento) e JetBrains Mono marca tudo que é etiqueta, número ou metadado.
+ * As três vozes do design: Funnel Display nos títulos e números grandes (quase
+ * sempre em peso leve), Funnel Sans no texto e na interface, e Geist Mono nas
+ * etiquetas, legendas e rótulos dos diagramas.
  */
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const funnelDisplay = Funnel_Display({
+  variable: "--font-funnel-display",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+});
+
+const funnelSans = Funnel_Sans({
+  variable: "--font-funnel-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
 });
 
-const newsreader = Newsreader({
-  variable: "--font-newsreader",
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  weight: ["300", "400", "500"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
   weight: ["400", "500"],
 });
 
 /*
- * Documento compartilhado pelos dois layouts raiz — (pt) e (en) são route
+ * Documento compartilhado pelos dois layouts raiz: (pt) e (en) são route
  * groups com <html> próprio só para o lang mudar; todo o resto é igual.
  */
 export function Documento({ lang, children }: { lang: "pt-BR" | "en"; children: ReactNode }) {
   return (
     <html
       lang={lang}
-      className={`${spaceGrotesk.variable} ${newsreader.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${funnelDisplay.variable} ${funnelSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">
-        {/* Relevo animado atrás da página inteira */}
-        <Topografia />
-        <BarraProgresso />
+      <body className="min-h-full px-4 sm:px-6 lg:px-10">
         <EasterEgg email={perfil.links.email} />
         {children}
       </body>
