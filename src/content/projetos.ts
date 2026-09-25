@@ -7,16 +7,30 @@ export type Projeto = {
   areas: Area[]
   stack: string[]
   destaque: boolean
-  // Preencher só em projeto de equipe. Renderizar como linha discreta no card
-  // e no topo do case, com rótulo "Meu papel".
+  // Preencher só em projeto de equipe. Aparece no topo do case, com o
+  // rótulo "Papel".
   papel?: string
-  // Screenshot real do projeto (arquivo em public/). Enquanto vazio, o card e
-  // o case usam a arte SVG do slug em components/CapaProjeto.
-  // `ajuste`: cover preenche o quadro (padrão), contain veste logos com
-  // respiro, cover-topo ancora retrato (celular) no topo em vez do centro.
-  imagem?: { src: string; alt: string; ajuste?: 'cover' | 'contain' | 'cover-topo' }
+  // Etiqueta de estágio para projeto que ainda não terminou ("em andamento").
+  // Sem ela, o projeto é tratado como concluído.
+  estado?: string
+  // Cada projeto é desenhado como o mecanismo que ele resolve: a animação em
+  // components/figuras/ é escolhida pelo slug, e o texto dela mora aqui.
+  // `titulo` é a legenda curta da moldura; `legenda` explica o que se move.
+  figura: { titulo: string; legenda: string }
+  // Leituras grandes no case, em fonte de matriz de pontos. Só números que
+  // já estão no texto do case: a leitura resume, não acrescenta.
+  numeros?: Array<{ valor: string; rotulo: string }>
+  // Comparação animada de/para no case (barras que encolhem ou caem).
+  // Valores na mesma unidade dentro de cada item; minutos viram "h" sozinhos.
+  medidas?: {
+    titulo: string
+    rotuloDe: string
+    rotuloPara: string
+    itens: Array<{ rotulo: string; de: number; para: number; unidade: '%' | 'min'; periodo?: string }>
+    nota?: string
+  }
   // Capturas exibidas em galeria na página de case (não no card). Ideal para
-  // screenshot de celular, que não cabe no formato 16:9 da capa.
+  // screenshot de celular, que não cabe no formato da figura.
   capturas?: Array<{ src: string; alt: string; largura: number; altura: number }>
   links: { repo?: string; demo?: string; video?: string }
   case: {
@@ -38,6 +52,22 @@ export const projetos: Projeto[] = [
     areas: ['dados'],
     stack: ['Python', 'PyTorch', 'EfficientNet-V2-S', 'ONNX', 'Streamlit'],
     destaque: true,
+    figura: {
+      titulo: 'Sabe quando não sabe',
+      legenda:
+        'A varredura gera uma confiança para cada uma das sete classes. Acima do limiar, a predição sai; abaixo dele, o modelo se abstém e o caso vai para revisão humana.',
+    },
+    numeros: [
+      { valor: '7', rotulo: 'doenças foliares de soja' },
+      { valor: '74,6%', rotulo: 'acurácia balanceada em câmera não vista' },
+    ],
+    medidas: {
+      titulo: 'O número honesto',
+      rotuloDe: 'validação original',
+      rotuloPara: 'câmera não vista',
+      itens: [{ rotulo: 'Acurácia', de: 98.5, para: 74.6, unidade: '%' }],
+      nota: 'O primeiro número media a assinatura da câmera, não a lesão. O segundo é o que o modelo entrega fora do dataset.',
+    },
     links: {
       repo: 'https://github.com/RafaelMouraG/AtlasLeaf',
       // demo: preencher quando a API subir
@@ -51,6 +81,40 @@ export const projetos: Projeto[] = [
         'A decisão que definiu o projeto foi refazer o protocolo de avaliação com split por câmera, treinando em um conjunto de câmeras e testando em outro. O número honesto caiu de 98,5% para 74,6% de acurácia balanceada em câmera não vista, e ficou claro que o modelo anterior aprendia a assinatura do equipamento e da fonte, não a lesão. A segunda decisão foi deixar o modelo se abster: em diagnóstico agronômico, uma predição errada com alta confiança custa mais caro que um "não sei". No levantamento de datasets apareceu ainda um risco taxonômico concreto, já que o rótulo "cercospora" agrupa Cercospora kikuchii e Cercospora sojina em várias fontes, apesar de serem doenças distintas.',
       resultado:
         '74,6% de acurácia balanceada em câmera não vista, com abstenção nos casos de baixa confiança. O aprendizado que levo é anterior ao modelo: definir o split por domínio antes de treinar qualquer coisa. Passei semanas otimizando em cima de uma métrica que não media generalização, e nenhum ajuste de arquitetura teria consertado isso.',
+    },
+  },
+  {
+    slug: 'llm-bench',
+    titulo: 'llm-bench',
+    resumo:
+      'Mini benchmark exploratório de agentes de programação: cada configuração (modelo, harness e skills) implementa a mesma API num container isolado, e um avaliador automatizado verifica 35 requisitos na entrega congelada.',
+    areas: ['dados', 'dev'],
+    estado: 'em andamento',
+    stack: ['Python', 'Go', 'Docker', 'GQM'],
+    destaque: true,
+    figura: {
+      titulo: 'Mesma tarefa, containers isolados',
+      legenda:
+        'Uma tentativa por vez, cada uma num container novo e sem acesso às outras. A entrega é congelada e vai para o avaliador, que confere os 35 requisitos num ambiente limpo.',
+    },
+    numeros: [
+      { valor: '35', rotulo: 'requisitos verificados por entrega' },
+      { valor: '4', rotulo: 'configurações na coleta' },
+      { valor: '1', rotulo: 'container novo por tentativa' },
+      { valor: '1800 s', rotulo: 'de prazo por tentativa' },
+    ],
+    links: {
+      repo: 'https://github.com/RafaelMouraG/llm-bench',
+    },
+    case: {
+      problema:
+        'Comparar agentes de programação costuma virar ranking de modelo, mas o que se usa no dia a dia é uma configuração inteira: o modelo, o harness que o executa e as skills carregadas. Medir isso exige responder antes o que exatamente está sendo comparado, com que evidência e em que condições, senão o número final mede o experimento, e não os agentes.',
+      abordagem:
+        'Parti da GQM: um objetivo, nove perguntas e métricas rastreáveis a elas, cobrindo correção funcional, robustez, manutenibilidade, eficiência e o desempenho da API entregue. A tarefa é um encurtador de URL com contrato HTTP fechado e stack livre. Cada tentativa roda num container novo, sem histórico, memórias ou acesso a outras entregas, com rede restrita a registros de pacotes por um proxy. A entrega é congelada e vai para um avaliador automatizado que verifica os 35 requisitos de aceitação em ambiente limpo, inclusive durabilidade depois de SIGTERM e reinício, e mede latência com um gerador de carga em Go.',
+      decisoes:
+        'O objeto comparado é a configuração completa, e não o modelo: as diferenças entre harnesses são intencionais, e o desenho não permite atribuir um resultado só ao modelo. Não existe nota geral agregada, porque tempo, custo, correção e rubrica significam coisas diferentes; cada configuração ganha um perfil. A rubrica qualitativa é ordinal, sem média aritmética. Dado ausente fica ausente, não vira zero, e a semântica de tokens de cada harness é registrada, já que o Codex conta cache dentro da entrada e o Claude Code conta à parte. E o piloto serve para validar o instrumento, não para escolher condições que favoreçam alguém.',
+      resultado:
+        'O piloto com a tarefa real está concluído: as quatro configurações da coleta tiveram a entrega aceita, 35 de 35 requisitos, sem intervenção humana. Ele também pegou defeitos do próprio instrumento, como um binário que faltava na imagem e uma exportação de sessão que falhava, que teriam contaminado a coleta. Com uma tentativa por configuração, o estudo descreve uma execução de cada uma e não separa efeito de variação; essa limitação está escrita antes da coleta, e não depois. A coleta oficial é o próximo passo.',
     },
   },
   {
@@ -73,11 +137,17 @@ export const projetos: Projeto[] = [
       'Cloud Run',
     ],
     destaque: true,
-    imagem: {
-      src: '/biblioo-logo-branca.png',
-      alt: 'Logotipo do Biblioo',
-      ajuste: 'contain',
+    figura: {
+      titulo: 'Persistir antes do fanout',
+      legenda:
+        'A notificação é gravada antes de sair pelo topic exchange para web (SSE) e mobile (FCM). Se um canal falha, ela continua no banco e o reenvio vira reprocessamento, não perda.',
     },
+    numeros: [
+      { valor: '71', rotulo: 'testes k6' },
+      { valor: '8', rotulo: 'domínios cobertos' },
+      { valor: '3', rotulo: 'perfis: load, spike e stress' },
+      { valor: '3', rotulo: 'subsistemas sob minha responsabilidade' },
+    ],
     links: {
       repo: 'https://github.com/RafaelMouraG/biblioo',
       demo: 'https://biblioo-rust.vercel.app/',
@@ -102,9 +172,20 @@ export const projetos: Projeto[] = [
     papel: 'Equipe de seis, cliente real. Backend: camada de comunicação e integrações externas.',
     stack: ['Java 21', 'Spring Boot 4', 'MySQL', 'Apache PDFBox', 'API Sicoob', 'Focus NFe', 'Railway'],
     destaque: true,
-    imagem: {
-      src: '/hortifruti-banner.png',
-      alt: 'Marca do Hortifruti Santa Luzia',
+    figura: {
+      titulo: 'Normalizar na entrada',
+      legenda:
+        'Extratos em PDF de dois bancos passam pelo mesmo parser e saem num formato interno único, que a conciliação confere contra os pagamentos esperados.',
+    },
+    medidas: {
+      titulo: 'Antes e depois',
+      rotuloDe: 'à mão',
+      rotuloPara: 'com o sistema',
+      itens: [
+        { rotulo: 'Geração de boletos', de: 120, para: 10, unidade: 'min', periodo: 'por dia' },
+        { rotulo: 'Conciliação bancária', de: 240, para: 15, unidade: 'min', periodo: 'por semana' },
+        { rotulo: 'Agrupamento', de: 180, para: 5, unidade: 'min', periodo: 'por semana' },
+      ],
     },
     capturas: [
       {
@@ -139,6 +220,11 @@ export const projetos: Projeto[] = [
     areas: ['dev'],
     stack: ['Python', 'FastAPI', 'PostgreSQL', 'RabbitMQ', 'Alembic', 'pytest', 'Docker', 'Flutter'],
     destaque: true,
+    figura: {
+      titulo: 'Idempotência no consumidor',
+      legenda:
+        'A entrega é at-least-once: o mesmo evento pode chegar duas vezes. O worker guarda os event_id já vistos e ignora a repetição; o que falha de novo e de novo vai para a DLQ, não para um log perdido.',
+    },
     capturas: [
       {
         src: '/fieldflow-login.png',
@@ -175,6 +261,17 @@ export const projetos: Projeto[] = [
       'Biblioteca de grafos direcionados com API única sobre duas representações internas, validada numa rede de similaridade entre 156 mil artistas do Spotify e 300 mil colaborações reais.',
     areas: ['dados'],
     destaque: true,
+    figura: {
+      titulo: 'Centralidade não é popularidade',
+      legenda:
+        'Label Propagation separa as comunidades. A Eigenvector Centrality põe no topo quem atravessa a fronteira entre elas, e não quem acumula conexões dentro de uma só.',
+    },
+    numeros: [
+      { valor: '156.422', rotulo: 'artistas' },
+      { valor: '300.379', rotulo: 'colaborações reais' },
+      { valor: '≈229 s', rotulo: 'pipeline completo sobre a rede inteira' },
+      { valor: '2,44 × 10¹⁰', rotulo: 'células que a matriz exigiria' },
+    ],
     papel: 'Equipe de cinco. Camada de consultas de relacionamento da biblioteca, redação e revisão do artigo.',
     stack: ['Python 3', 'Label Propagation', 'Eigenvector Centrality', 'Gephi'],
     links: {

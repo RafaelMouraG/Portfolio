@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 /*
  * Botão quadrado de copiar e-mail, ao lado do CTA de e-mail. Usa a Clipboard
  * API com fallback para execCommand, e troca o ícone por um check por 2s.
- * É um quadrado de 42px para alinhar a altura dos CTAs vizinhos.
+ * É um quadrado de 46px para alinhar a altura dos CTAs vizinhos.
  */
 export function CopiarEmail({
   email,
@@ -52,9 +52,9 @@ export function CopiarEmail({
       title={copiado ? copiadoRotulo : rotulo}
       aria-label={copiado ? copiadoRotulo : rotulo}
       aria-live="polite"
-      className="accent-transition grid size-[42px] shrink-0 place-items-center rounded-[9px] border border-border font-mono text-[14px] text-muted hover:border-border-strong hover:text-foreground"
+      className="transicao grid size-[46px] shrink-0 place-items-center rounded-[8px] border border-border font-mono text-[14px] text-muted hover:border-border-strong hover:text-foreground"
     >
-      <span aria-hidden>{copiado ? "✓" : "⧉"}</span>
+      <span aria-hidden className={copiado ? "text-signal" : undefined}>{copiado ? "✓" : "⧉"}</span>
     </button>
   );
 }

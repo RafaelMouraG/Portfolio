@@ -23,8 +23,8 @@ type Props = {
  * O estado ativo é indicado por peso de fonte e pelo anel deslizante,
  * nunca só por cor.
  *
- * Veste os cantos de 8-10px e as bordas finas do design, em vez da pílula
- * que o site usava antes.
+ * Em mono, como a chave de canal de um instrumento; o anel vermelho desliza
+ * entre as posições.
  */
 export function AreaFilter({ valor, aoMudar, idioma, contagens }: Props) {
   const botoes = useRef<Map<FiltroArea, HTMLButtonElement | null>>(new Map());
@@ -60,7 +60,7 @@ export function AreaFilter({ valor, aoMudar, idioma, contagens }: Props) {
       role="radiogroup"
       aria-label={t.aria}
       onKeyDown={aoTeclar}
-      className="inline-flex max-w-full rounded-[10px] border border-border bg-surface p-1"
+      className="inline-flex max-w-full rounded-[9px] border border-border bg-surface p-1"
     >
       {ordem.map((opcao) => {
         const ativo = opcao === valor;
@@ -75,25 +75,24 @@ export function AreaFilter({ valor, aoMudar, idioma, contagens }: Props) {
               botoes.current.set(opcao, el);
             }}
             onClick={() => aoMudar(opcao)}
-            data-accent={opcao === "todos" ? undefined : opcao}
-            className="relative rounded-[7px] px-3 py-1.5 text-[13.5px] sm:px-4"
+            className="relative rounded-[6px] px-3 py-1.5 font-mono text-[12px] tracking-[0.02em] sm:px-4"
           >
             {ativo && (
               <motion.span
                 layoutId="indicador-area"
                 aria-hidden
-                className="accent-transition absolute inset-0 rounded-[7px] border border-accent/45 bg-accent/10"
+                className="absolute inset-0 rounded-[6px] border border-signal/50 bg-signal-soft"
                 transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
               />
             )}
             <span
-              className={`accent-transition relative z-10 tracking-[-0.005em] whitespace-nowrap ${
-                ativo ? "font-medium text-accent" : "font-normal text-muted"
+              className={`transicao relative z-10 whitespace-nowrap ${
+                ativo ? "font-medium text-foreground" : "font-normal text-muted"
               }`}
             >
               {t.rotulos[opcao]}
               {contagens && (
-                <span className="ml-1.5 font-mono text-[11px] text-fainter">
+                <span className="ml-1.5 text-[11px] text-faint">
                   {contagens[opcao]}
                 </span>
               )}

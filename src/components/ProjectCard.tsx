@@ -1,99 +1,83 @@
 "use client";
 
 import Link from "next/link";
+import { ViewTransition } from "react";
 import type { Projeto } from "@/content/projetos";
-import { caminhoDoCase, type Idioma } from "@/lib/i18n";
-import { AreaTag } from "./AreaTag";
-import { CapaProjeto } from "./CapaProjeto";
+import { caminhoDoCase, textos, type Idioma } from "@/lib/i18n";
+import { FiguraDoProjeto } from "./figuras";
 
 /*
- * O card marca a própria área (data-accent no Link); com a paleta neutra a
- * borda de hover é osso em qualquer área, mas o gancho fica para o dia em
- * que a cor por área voltar.
+ * Card de projeto: a figura animada em cima, o texto embaixo. O título é o
+ * link, esticado por ::after sobre o card inteiro; a figura fica por cima
+ * dele com pointer-events desligado, então clicar no desenho abre o case e
+ * só o botão de pausa da moldura recebe o clique.
  *
- * A capa fica sobre a hachura diagonal do design: a arte SVG é encaixada
- * (não cortada), então o losango de hachura aparece nas laterais e faz a
- * moldura que o design usa para o placeholder de screenshot.
+ * A figura tem o mesmo nome de transição na página do case: ao abrir, o
+ * desenho cresce do card até o topo do case (React <ViewTransition>).
  *
- * Firula contida: spotlight que segue o cursor sobre o card (vars --mx/--my
- * lidas pela classe .spotlight-card), número do item na capa e seta que
- * desliza para dentro no hover, reforçando que o card abre o case.
- *
- * `largo` é o card que ocupa a linha inteira da grade: a partir de sm, a capa
- * vai para a esquerda e o texto para a direita, com título um pouco maior.
- * No celular ele é igual aos outros.
+ * `largo` ocupa a linha inteira da grade (contagem ímpar no filtro): a partir
+ * de lg, figura à esquerda e texto à direita.
  */
 export function ProjectCard({
   projeto,
   idioma,
+  numero,
   largo = false,
-  indice = 0,
 }: {
   projeto: Projeto;
   idioma: Idioma;
+  numero: number;
   largo?: boolean;
-  indice?: number;
 }) {
-  function aoMover(evento: React.MouseEvent<HTMLAnchorElement>) {
-    const el = evento.currentTarget;
-    const caixa = el.getBoundingClientRect();
-    el.style.setProperty("--mx", `${evento.clientX - caixa.left}px`);
-    el.style.setProperty("--my", `${evento.clientY - caixa.top}px`);
-  }
+  const t = textos[idioma];
 
   return (
-    <Link
-      href={caminhoDoCase(idioma, projeto.slug)}
-      data-accent={projeto.areas[0]}
-      onMouseMove={aoMover}
-      className={`spotlight-card group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface transition-[transform,border-color,box-shadow] duration-[180ms] hover:-translate-y-[3px] hover:border-accent/45 hover:shadow-[0_12px_32px_rgba(0,0,0,0.4)] motion-reduce:hover:translate-y-0 ${
-        largo ? "sm:grid sm:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]" : ""
+    <article
+      className={`group relative flex h-full flex-col gap-5 ${
+        largo ? "lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:gap-10" : ""
       }`}
     >
-      <div
-        className={`hachura relative grid h-[150px] place-items-center border-b border-border-soft ${
-          largo ? "sm:h-full sm:min-h-[210px] sm:border-r sm:border-b-0" : ""
-        }`}
-      >
-        <span
-          aria-hidden
-          className="absolute top-3 left-4 z-[2] font-mono text-[11px] tracking-[0.08em] text-fainter"
-        >
-          {String(indice + 1).padStart(2, "0")}
-        </span>
-        <span
-          aria-hidden
-          className="accent-transition absolute top-2.5 right-4 z-[2] -translate-x-1 translate-y-1 font-mono text-[13px] text-fainter opacity-0 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:text-foreground group-hover:opacity-100"
-        >
-          ↗
-        </span>
-        <CapaProjeto projeto={projeto} />
-      </div>
+      <ViewTransition name={`figura-${projeto.slug}`} share="morph" default="none">
+        <div className="pointer-events-none relative z-[1] transition-transform duration-300 ease-out group-hover:-translate-y-1 motion-reduce:transform-none [&_button]:pointer-events-auto [&_figure]:transition-colors [&_figure]:duration-300 group-hover:[&_figure]:border-border-strong">
+          <FiguraDoProjeto projeto={projeto} numero={numero} idioma={idioma} compacta />
+        </div>
+      </ViewTransition>
 
-      <div className="relative z-[2] flex grow flex-col gap-[7px] px-[18px] pt-4 pb-[18px]">
-        <div className="flex items-baseline justify-between gap-3">
-          <h3
-            className={`font-medium tracking-[-0.01em] ${
-              largo ? "text-[15.5px] sm:text-[18px]" : "text-[15.5px]"
-            }`}
-          >
-            {projeto.titulo}
+      <div className="flex flex-col gap-2.5 px-1">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1.5">
+          <h3 className="text-[24px] leading-[1.1] font-semibold tracking-[-0.025em] [font-stretch:88%]">
+            <Link
+              href={caminhoDoCase(idioma, projeto.slug)}
+              className="no-underline outline-none after:absolute after:inset-0 after:rounded-[12px] focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-signal"
+            >
+              {projeto.titulo}
+            </Link>
           </h3>
-          <span className="flex shrink-0 gap-2">
+          <p className="flex flex-wrap gap-1.5 font-mono text-[10.5px] tracking-[0.04em] uppercase">
+            {projeto.estado && (
+              <span className="inline-flex items-center gap-1.5 rounded-[4px] border border-signal/50 px-1.5 py-0.5 text-signal">
+                <span aria-hidden className="pulso size-1 rounded-full bg-signal" />
+                {projeto.estado}
+              </span>
+            )}
             {projeto.areas.map((area) => (
-              <AreaTag key={area} area={area} idioma={idioma} />
+              <span key={area} className="rounded-[4px] border border-border px-1.5 py-0.5 text-faint">
+                {t.areas[area]}
+              </span>
             ))}
-          </span>
+          </p>
         </div>
 
-        {/* Sem a linha "Papel": em projeto de equipe ela repetia o resumo quase
-            palavra por palavra. Fica só na página do case. */}
-        <p className="text-[13.5px] leading-[1.5] text-pretty text-muted">{projeto.resumo}</p>
+        <p className="text-[15px] leading-[1.55] text-pretty text-muted">{projeto.resumo}</p>
 
-        <p className="mt-auto pt-2.5 font-mono text-[11px] leading-[1.5] text-fainter">
-          {projeto.stack.join(" · ")}
-        </p>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 pt-1">
+          <p className="font-mono text-[11px] leading-[1.6] text-faint">{projeto.stack.join(" · ")}</p>
+          <span aria-hidden className="inline-flex items-center gap-1.5 font-mono text-[11.5px] text-muted transition-colors group-hover:text-signal">
+            {t.projetos.abrir}
+            <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </span>
+        </div>
       </div>
-    </Link>
+    </article>
   );
 }

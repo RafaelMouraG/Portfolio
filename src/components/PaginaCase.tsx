@@ -1,218 +1,231 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ViewTransition } from "react";
 import type { Projeto } from "@/content/projetos";
 import { caminhoDaHome, caminhoDoCase, conteudo, textos, type Idioma } from "@/lib/i18n";
-import { AreaTag } from "./AreaTag";
-import { CapaProjeto } from "./CapaProjeto";
-import { SectionTitle } from "./SectionTitle";
-import { SeletorIdioma } from "./SeletorIdioma";
+import { BarraTopo } from "./BarraTopo";
+import { FiguraDoProjeto } from "./figuras";
+import { IndiceCase } from "./IndiceCase";
+import { Leituras } from "./Leituras";
+import { Medidas } from "./Medidas";
+import { Regua } from "./Regua";
 
 /*
- * Miolo da página de case, compartilhado pelas rotas /projetos/[slug] (pt)
- * e /en/projects/[slug] (en). As páginas resolvem o projeto no idioma certo
- * e delegam a renderização para cá.
+ * Página de case, compartilhada por /projetos/[slug] e /en/projects/[slug].
  *
- * Segue a mesma métrica da home (coluna de 720px, blocos numerados) e usa a
- * serifa do design para o texto longo — é o trecho mais parecido com leitura
- * corrida do site inteiro, que é exatamente para o que o Newsreader entra.
+ * Ordem: título e ficha técnica; a figura grande (a mesma do card, que cresce
+ * até aqui na troca de página) com a legenda que explica o que se move; as
+ * leituras e a comparação de/para quando o projeto tem números; o texto em
+ * quatro seções com índice lateral; capturas; e o próximo projeto.
  */
 export function PaginaCase({ projeto, idioma }: { projeto: Projeto; idioma: Idioma }) {
   const t = textos[idioma].caso;
-  const tProjetos = textos[idioma].projetos;
-
-  // Próximo projeto na ordem do conteúdo, dando a volta no fim da lista
+  const tFig = textos[idioma].figura;
   const { projetos, perfil } = conteudo[idioma];
+  const destaques = projetos.filter((p) => p.destaque);
+  const numero = destaques.findIndex(({ slug }) => slug === projeto.slug) + 1;
   const indice = projetos.findIndex(({ slug }) => slug === projeto.slug);
   const proximo = projetos.length > 1 ? projetos[(indice + 1) % projetos.length] : null;
+  const numeroProximo = proximo ? destaques.findIndex(({ slug }) => slug === proximo.slug) + 1 : 0;
   const email = perfil.links.email;
 
   const secoes = [
-    { titulo: t.secoes.problema, texto: projeto.case.problema },
-    { titulo: t.secoes.abordagem, texto: projeto.case.abordagem },
-    { titulo: t.secoes.decisoes, texto: projeto.case.decisoes },
-    { titulo: t.secoes.resultado, texto: projeto.case.resultado },
+    { id: "problema", rotulo: t.secoes.problema, texto: projeto.case.problema },
+    { id: "abordagem", rotulo: t.secoes.abordagem, texto: projeto.case.abordagem },
+    { id: "decisoes", rotulo: t.secoes.decisoes, texto: projeto.case.decisoes },
+    { id: "resultado", rotulo: t.secoes.resultado, texto: projeto.case.resultado },
   ];
 
   const linksExternos = [
     { label: t.verNoAr, href: projeto.links.demo, primario: true },
     // Sem demo no ar, o vídeo assume o posto de link principal
     { label: t.demoEmVideo, href: projeto.links.video, primario: !projeto.links.demo },
-    { label: t.repositorio, href: projeto.links.repo, primario: false },
-  ].filter((link): link is { label: string; href: string; primario: boolean } =>
-    Boolean(link.href),
-  );
+    { label: t.repositorio, href: projeto.links.repo, primario: !projeto.links.demo && !projeto.links.video },
+  ].filter((link): link is { label: string; href: string; primario: boolean } => Boolean(link.href));
 
   return (
-    // data-accent marca a área do case; hoje não muda nada visualmente (a
-    // paleta é neutra), mas é o gancho para o dia em que a cor por área voltar.
-    <main
-      data-accent={projeto.areas[0]}
-      className="mx-auto flex w-full max-w-[720px] flex-col gap-[52px] px-7 pt-16 pb-24"
-    >
-      <div className="flex items-center justify-between gap-3">
-        <Link
-          href={caminhoDaHome(idioma)}
-          className="accent-transition font-mono text-[11.5px] tracking-[0.04em] text-muted no-underline hover:text-gold"
-        >
-          {t.voltar}
-        </Link>
-        <SeletorIdioma
-          idioma={idioma}
-          destino={caminhoDoCase(idioma === "pt" ? "en" : "pt", projeto.slug)}
-        />
-      </div>
+    <>
+      <BarraTopo
+        idioma={idioma}
+        destinoIdioma={caminhoDoCase(idioma === "pt" ? "en" : "pt", projeto.slug)}
+      />
+      <Regua />
 
-      <header className="flex flex-col gap-[18px]">
-        <div className="flex flex-wrap gap-3">
-          {projeto.areas.map((area) => (
-            <AreaTag key={area} area={area} idioma={idioma} />
-          ))}
-        </div>
-
-        <h1 className="text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] text-balance sm:text-[40px]">
-          {projeto.titulo}
-        </h1>
-
-        <p className="font-serif text-[18px] leading-[1.58] text-pretty text-prose sm:text-[20px]">
-          {projeto.resumo}
-        </p>
-
-        {projeto.papel && (
-          <p className="text-[13.5px] leading-[1.5] text-faint">
-            <span className="text-muted">{tProjetos.meuPapel}</span> {projeto.papel}
-          </p>
-        )}
-
-        <p className="font-mono text-[11.5px] leading-[1.7] text-fainter">
-          {projeto.stack.map((item, i) => (
-            <span key={item}>
-              {i > 0 && <span aria-hidden className="text-dim"> · </span>}
-              {item}
-            </span>
-          ))}
-        </p>
-
-        {linksExternos.length > 0 && (
-          <ul className="mt-1 flex flex-wrap gap-2.5">
-            {linksExternos.map(({ label, href, primario }) => (
-              <li key={label}>
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={
-                    primario
-                      ? "accent-transition inline-block rounded-[9px] bg-foreground px-[18px] py-[11px] text-[14.5px] font-medium tracking-[-0.005em] text-background no-underline hover:bg-white"
-                      : "accent-transition inline-block rounded-[9px] border border-border px-[18px] py-[11px] text-[14.5px] font-medium tracking-[-0.005em] no-underline hover:border-border-strong"
-                  }
-                >
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-      </header>
-
-      {/* Screenshot real fica em 16:9; a arte SVG, que é um desenho de linha
-          fina, ganha uma moldura mais baixa para não sobrar vazio em volta. */}
-      <div
-        className={`hachura relative grid place-items-center overflow-hidden rounded-xl border border-border bg-surface ${
-          projeto.imagem ? "aspect-[16/9]" : "aspect-[2/1]"
-        }`}
-      >
-        <CapaProjeto projeto={projeto} />
-      </div>
-
-      {/* Capturas reais em galeria: retrato (celular) lado a lado com altura
-          fixa, paisagem ocupando a largura toda */}
-      {projeto.capturas && projeto.capturas.length > 0 && (
-        <section aria-label={t.capturas}>
-          <ul className="flex flex-wrap gap-4">
-            {projeto.capturas.map(({ src, alt, largura, altura }) => (
-              <li
-                key={src}
-                className={
-                  altura > largura
-                    ? "overflow-hidden rounded-xl border border-border bg-surface"
-                    : "w-full overflow-hidden rounded-xl border border-border bg-surface"
-                }
-              >
-                <Image
-                  src={src}
-                  alt={alt}
-                  width={largura}
-                  height={altura}
-                  className={altura > largura ? "h-96 w-auto" : "h-auto w-full"}
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      <article className="flex flex-col gap-[42px]">
-        {secoes.map(({ titulo, texto }, indice) => (
-          <section
-            key={titulo}
-            aria-labelledby={`case-secao-${indice}`}
-            className="flex flex-col gap-[18px]"
-          >
-            <SectionTitle
-              id={`case-secao-${indice}`}
-              numero={String(indice + 1).padStart(2, "0")}
-            >
-              {titulo}
-            </SectionTitle>
-            <p className="font-serif text-[18px] leading-[1.62] text-pretty text-prose sm:text-[19px]">
-              {texto}
-            </p>
-          </section>
-        ))}
-      </article>
-
-      {/* Quem leu o case até o fim é o leitor mais interessado: em vez de a
-          página acabar em nada, ele ganha o próximo projeto e o e-mail. */}
-      <footer className="flex flex-col gap-5 border-t border-border-soft pt-[26px]">
-        {proximo && (
-          <Link
-            href={caminhoDoCase(idioma, proximo.slug)}
-            className="group flex items-baseline justify-between gap-5 no-underline"
-          >
-            <span className="flex flex-col gap-[5px]">
-              <span className="font-mono text-[11px] tracking-[0.06em] text-faint uppercase">
-                {t.proximoProjeto}
-              </span>
-              <span className="text-[17px] font-medium tracking-[-0.01em] text-foreground">
-                {proximo.titulo}
-              </span>
-            </span>
-            <span
-              aria-hidden
-              className="accent-transition shrink-0 font-mono text-[13px] text-fainter group-hover:text-gold"
-            >
-              →
-            </span>
-          </Link>
-        )}
-
-        <p className="font-mono text-[11.5px] leading-[1.8] text-faint">
-          {t.conversar}{" "}
-          <a
-            href={`mailto:${email}`}
-            className="underline decoration-border-strong hover:text-gold hover:decoration-gold"
-          >
-            {email}
-          </a>
-          <span aria-hidden className="text-dim"> · </span>
+      <main className="mx-auto flex w-full max-w-[1180px] flex-col gap-16 px-5 pt-8 pb-24 sm:px-8">
+        <div className="flex items-center justify-between gap-4 font-mono text-[11.5px] tracking-[0.04em]">
           <Link
             href={caminhoDaHome(idioma)}
-            className="underline decoration-border-strong hover:text-gold hover:decoration-gold"
+            className="transicao text-muted no-underline hover:text-signal"
           >
-            {t.todosProjetos}
+            {t.voltar}
           </Link>
-        </p>
-      </footer>
-    </main>
+          <span className="text-faint">
+            {tFig.fig} {String(numero).padStart(2, "0")} / {String(destaques.length).padStart(2, "0")}
+          </span>
+        </div>
+
+        <header className="grid gap-10 lg:grid-cols-12 lg:gap-14">
+          <div className="flex flex-col gap-6 lg:col-span-8">
+            <p className="flex flex-wrap gap-1.5 font-mono text-[10.5px] tracking-[0.04em] uppercase">
+              {projeto.estado && (
+                <span className="inline-flex items-center gap-1.5 rounded-[4px] border border-signal/50 px-1.5 py-0.5 text-signal">
+                  <span aria-hidden className="pulso size-1 rounded-full bg-signal" />
+                  {projeto.estado}
+                </span>
+              )}
+              {projeto.areas.map((area) => (
+                <span key={area} className="rounded-[4px] border border-border px-1.5 py-0.5 text-faint">
+                  {textos[idioma].areas[area]}
+                </span>
+              ))}
+            </p>
+            <h1 className="surgir text-[clamp(2.6rem,7vw,5.8rem)] leading-[0.92] font-semibold tracking-[-0.045em] text-balance [font-stretch:82%]">
+              {projeto.titulo}
+            </h1>
+            <p className="surgir max-w-[46ch] text-[20px] leading-[1.5] text-pretty text-prose [animation-delay:120ms] sm:text-[22px]">
+              {projeto.resumo}
+            </p>
+          </div>
+
+          <dl className="surgir flex flex-col gap-5 self-end border-t border-border-strong pt-5 [animation-delay:200ms] lg:col-span-4">
+            {projeto.papel && (
+              <div className="flex flex-col gap-1.5">
+                <dt className="font-mono text-[10.5px] tracking-[0.08em] text-faint uppercase">{t.papel}</dt>
+                <dd className="text-[14.5px] leading-[1.55] text-prose">{projeto.papel}</dd>
+              </div>
+            )}
+            <div className="flex flex-col gap-1.5">
+              <dt className="font-mono text-[10.5px] tracking-[0.08em] text-faint uppercase">{t.stack}</dt>
+              <dd className="font-mono text-[12px] leading-[1.7] text-muted">{projeto.stack.join(" · ")}</dd>
+            </div>
+            {linksExternos.length > 0 && (
+              <div className="flex flex-col gap-2.5">
+                <dt className="font-mono text-[10.5px] tracking-[0.08em] text-faint uppercase">{t.links}</dt>
+                <dd className="flex flex-wrap gap-2">
+                  {linksExternos.map(({ label, href, primario }) => (
+                    <a
+                      key={label}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={
+                        primario
+                          ? "transicao inline-flex items-center gap-1.5 rounded-[8px] bg-foreground px-4 py-2.5 text-[14px] font-medium text-background no-underline hover:bg-signal"
+                          : "transicao inline-flex items-center gap-1.5 rounded-[8px] border border-border-strong px-4 py-2.5 text-[14px] font-medium no-underline hover:border-foreground"
+                      }
+                    >
+                      {label}
+                      <span aria-hidden className="font-mono text-[12px]">↗</span>
+                    </a>
+                  ))}
+                </dd>
+              </div>
+            )}
+          </dl>
+        </header>
+
+        <section className="grid gap-5 lg:grid-cols-12 lg:gap-10">
+          <ViewTransition name={`figura-${projeto.slug}`} share="morph" default="none">
+            <div className="lg:col-span-9">
+              <FiguraDoProjeto projeto={projeto} numero={numero} idioma={idioma} />
+            </div>
+          </ViewTransition>
+          <p className="flex max-w-[70ch] flex-col gap-2 self-end text-[15px] leading-[1.6] text-pretty text-muted lg:col-span-3 lg:pb-14">
+            <span className="font-mono text-[11px] tracking-[0.06em] text-signal uppercase">
+              ↳ {tFig.fig} {String(numero).padStart(2, "0")}
+            </span>
+            {projeto.figura.legenda}
+          </p>
+        </section>
+
+        {projeto.numeros && projeto.numeros.length > 0 && (
+          <Leituras itens={projeto.numeros} idioma={idioma} titulo={t.emNumeros} />
+        )}
+
+        {projeto.medidas && <Medidas medidas={projeto.medidas} idioma={idioma} />}
+
+        <div className="grid gap-10 lg:grid-cols-12">
+          <aside className="hidden lg:col-span-3 lg:block">
+            <div className="sticky top-24">
+              <IndiceCase titulo={t.indice} secoes={secoes.map(({ id, rotulo }) => ({ id, rotulo }))} />
+            </div>
+          </aside>
+
+          <article className="flex flex-col gap-14 lg:col-span-8 lg:col-start-5">
+            {secoes.map(({ id, rotulo, texto }, i) => (
+              <section key={id} id={id} data-regua={`${String(i + 1).padStart(2, "0")} ${rotulo}`} aria-labelledby={`${id}-titulo`} className="flex scroll-mt-24 flex-col gap-4">
+                <h2 id={`${id}-titulo`} className="flex items-baseline gap-3 text-[26px] leading-[1.1] font-semibold tracking-[-0.025em] [font-stretch:88%]">
+                  <span aria-hidden className="font-leitura text-[26px] font-bold text-signal">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  {rotulo}
+                </h2>
+                <p className="max-w-[66ch] text-[17.5px] leading-[1.72] text-pretty text-prose">{texto}</p>
+              </section>
+            ))}
+          </article>
+        </div>
+
+        {projeto.capturas && projeto.capturas.length > 0 && (
+          <section aria-label={t.capturas} className="flex flex-col gap-5">
+            <p className="font-mono text-[11px] tracking-[0.08em] text-faint uppercase">{t.capturas}</p>
+            <ul className="flex flex-wrap gap-4">
+              {projeto.capturas.map(({ src, alt, largura, altura }) => (
+                <li
+                  key={src}
+                  className={
+                    altura > largura
+                      ? "overflow-hidden rounded-[12px] border border-border bg-surface"
+                      : "w-full overflow-hidden rounded-[12px] border border-border bg-surface"
+                  }
+                >
+                  <Image
+                    src={src}
+                    alt={alt}
+                    width={largura}
+                    height={altura}
+                    className={altura > largura ? "h-[420px] w-auto" : "h-auto w-full"}
+                  />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <footer className="flex flex-col gap-8 border-t border-border-soft pt-10">
+          {proximo && (
+            <Link
+              href={caminhoDoCase(idioma, proximo.slug)}
+              className="group grid items-center gap-6 no-underline md:grid-cols-[minmax(0,1fr)_minmax(0,420px)]"
+            >
+              <span className="flex flex-col gap-2">
+                <span className="font-mono text-[11px] tracking-[0.08em] text-faint uppercase">{t.proximoProjeto}</span>
+                <span className="transicao text-[clamp(2rem,4.6vw,3.4rem)] leading-[1] font-semibold tracking-[-0.04em] [font-stretch:85%] group-hover:text-signal">
+                  {proximo.titulo}
+                  <span aria-hidden className="ml-3 inline-block font-mono text-[0.6em] transition-transform duration-300 group-hover:translate-x-2">
+                    →
+                  </span>
+                </span>
+                <span className="max-w-[48ch] text-[15px] leading-[1.55] text-muted">{proximo.resumo}</span>
+              </span>
+              <div className="pointer-events-none hidden md:block">
+                <FiguraDoProjeto projeto={proximo} numero={numeroProximo} idioma={idioma} compacta controles={false} />
+              </div>
+            </Link>
+          )}
+
+          <p className="font-mono text-[12px] leading-[1.8] text-faint">
+            {t.conversar}{" "}
+            <a href={`mailto:${email}`} className="text-muted underline decoration-border-strong hover:text-signal hover:decoration-signal">
+              {email}
+            </a>
+            <span aria-hidden className="text-dim"> · </span>
+            <Link href={caminhoDaHome(idioma)} className="text-muted underline decoration-border-strong hover:text-signal hover:decoration-signal">
+              {t.todosProjetos}
+            </Link>
+          </p>
+        </footer>
+      </main>
+    </>
   );
 }

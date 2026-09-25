@@ -20,6 +20,7 @@ export const perfilEn: Perfil = {
   disponibilidade: 'intern at Business Tec · Java + PrimeFaces',
 
   cidade: 'Belo Horizonte',
+  coordenadas: '19.92° S · 43.94° W',
   formacaoCurta: 'Software Engineering · PUC Minas · graduating end of 2027',
   idiomasResumo: 'PT native · EN advanced',
 

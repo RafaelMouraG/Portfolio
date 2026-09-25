@@ -11,6 +11,22 @@ export const projetosEn: Projeto[] = [
     areas: ['dados'],
     stack: ['Python', 'PyTorch', 'EfficientNet-V2-S', 'ONNX', 'Streamlit'],
     destaque: true,
+    figura: {
+      titulo: 'Knows when it does not know',
+      legenda:
+        'The scan yields a confidence for each of the seven classes. Above the threshold, the prediction goes out; below it, the model abstains and the case goes to human review.',
+    },
+    numeros: [
+      { valor: '7', rotulo: 'soybean leaf diseases' },
+      { valor: '74.6%', rotulo: 'balanced accuracy on unseen cameras' },
+    ],
+    medidas: {
+      titulo: 'The honest number',
+      rotuloDe: 'original validation',
+      rotuloPara: 'unseen camera',
+      itens: [{ rotulo: 'Accuracy', de: 98.5, para: 74.6, unidade: '%' }],
+      nota: 'The first number measured the camera signature, not the lesion. The second is what the model delivers outside the dataset.',
+    },
     links: {
       repo: 'https://github.com/RafaelMouraG/AtlasLeaf',
     },
@@ -23,6 +39,40 @@ export const projetosEn: Projeto[] = [
         'The decision that defined the project was redoing the evaluation protocol with a camera-based split, training on one set of cameras and testing on another. The honest number dropped from 98.5% to 74.6% balanced accuracy on unseen cameras, and it became clear that the previous model was learning the signature of the equipment and the source, not the lesion. The second decision was letting the model abstain: in agronomic diagnosis, a wrong prediction with high confidence costs more than an "I don\'t know". Surveying datasets also surfaced a concrete taxonomic risk, since the "cercospora" label groups Cercospora kikuchii and Cercospora sojina in several sources, even though they are distinct diseases.',
       resultado:
         '74.6% balanced accuracy on unseen cameras, with abstention on low-confidence cases. The lesson I take away predates the model: define the domain split before training anything. I spent weeks optimizing against a metric that did not measure generalization, and no architecture tweak would have fixed that.',
+    },
+  },
+  {
+    slug: 'llm-bench',
+    titulo: 'llm-bench',
+    resumo:
+      'An exploratory mini benchmark of coding agents: each configuration (model, harness and skills) builds the same API in an isolated container, and an automated evaluator checks 35 requirements on the frozen delivery.',
+    areas: ['dados', 'dev'],
+    estado: 'in progress',
+    stack: ['Python', 'Go', 'Docker', 'GQM'],
+    destaque: true,
+    figura: {
+      titulo: 'Same task, isolated containers',
+      legenda:
+        'One attempt at a time, each in a fresh container with no access to the others. The delivery is frozen and handed to the evaluator, which checks the 35 requirements in a clean environment.',
+    },
+    numeros: [
+      { valor: '35', rotulo: 'requirements checked per delivery' },
+      { valor: '4', rotulo: 'configurations in the study' },
+      { valor: '1', rotulo: 'fresh container per attempt' },
+      { valor: '1800 s', rotulo: 'time limit per attempt' },
+    ],
+    links: {
+      repo: 'https://github.com/RafaelMouraG/llm-bench',
+    },
+    case: {
+      problema:
+        'Comparing coding agents usually turns into a model ranking, but what people actually use is a whole configuration: the model, the harness that runs it and the skills it loads. Measuring that means first answering what exactly is being compared, with what evidence and under which conditions; otherwise the final number measures the experiment, not the agents.',
+      abordagem:
+        'I started from GQM: one goal, nine questions and metrics traceable to them, covering functional correctness, robustness, maintainability, efficiency and the performance of the delivered API. The task is a URL shortener with a closed HTTP contract and a free choice of stack. Each attempt runs in a fresh container with no history, memories or access to other deliveries, and network access limited to package registries through a proxy. The delivery is frozen and handed to an automated evaluator that checks the 35 acceptance requirements in a clean environment, including durability across SIGTERM and restart, and measures latency with a load generator written in Go.',
+      decisoes:
+        'The object being compared is the whole configuration, not the model: differences between harnesses are intentional, and the design does not allow attributing a result to the model alone. There is no aggregate score, because time, cost, correctness and rubric mean different things; each configuration gets a profile instead. The qualitative rubric is ordinal, with no arithmetic mean. Missing data stays missing instead of becoming zero, and each harness\'s token semantics are recorded, since Codex counts cache inside input while Claude Code counts it separately. And the pilot exists to validate the instrument, not to pick conditions that favor anyone.',
+      resultado:
+        'The pilot with the real task is done: all four configurations in the study had their delivery accepted, 35 out of 35 requirements, with no human intervention. It also caught defects in the instrument itself, such as a binary missing from the image and a session export that failed, which would have contaminated the collection. With one attempt per configuration, the study describes one run of each and cannot separate effect from variation; that limitation is written down before the collection, not after. The official collection is next.',
     },
   },
   {
@@ -45,11 +95,17 @@ export const projetosEn: Projeto[] = [
       'Cloud Run',
     ],
     destaque: true,
-    imagem: {
-      src: '/biblioo-logo-branca.png',
-      alt: 'Biblioo logo',
-      ajuste: 'contain',
+    figura: {
+      titulo: 'Persist before fanout',
+      legenda:
+        'The notification is stored before it leaves through the topic exchange to web (SSE) and mobile (FCM). If a channel fails, it is still in the database, and resending becomes reprocessing, not loss.',
     },
+    numeros: [
+      { valor: '71', rotulo: 'k6 tests' },
+      { valor: '8', rotulo: 'domains covered' },
+      { valor: '3', rotulo: 'profiles: load, spike and stress' },
+      { valor: '3', rotulo: 'subsystems I owned' },
+    ],
     links: {
       repo: 'https://github.com/RafaelMouraG/biblioo',
       demo: 'https://biblioo-rust.vercel.app/',
@@ -74,9 +130,20 @@ export const projetosEn: Projeto[] = [
     papel: 'Team of six, real client. Backend: communication layer and external integrations.',
     stack: ['Java 21', 'Spring Boot 4', 'MySQL', 'Apache PDFBox', 'Sicoob API', 'Focus NFe', 'Railway'],
     destaque: true,
-    imagem: {
-      src: '/hortifruti-banner.png',
-      alt: 'Hortifruti Santa Luzia brand',
+    figura: {
+      titulo: 'Normalize at the edge',
+      legenda:
+        'PDF statements from two banks go through the same parser and come out in a single internal format, which reconciliation checks against the expected payments.',
+    },
+    medidas: {
+      titulo: 'Before and after',
+      rotuloDe: 'by hand',
+      rotuloPara: 'with the system',
+      itens: [
+        { rotulo: 'Bank slip generation', de: 120, para: 10, unidade: 'min', periodo: 'per day' },
+        { rotulo: 'Bank reconciliation', de: 240, para: 15, unidade: 'min', periodo: 'per week' },
+        { rotulo: 'Grouping', de: 180, para: 5, unidade: 'min', periodo: 'per week' },
+      ],
     },
     capturas: [
       {
@@ -109,6 +176,11 @@ export const projetosEn: Projeto[] = [
     areas: ['dev'],
     stack: ['Python', 'FastAPI', 'PostgreSQL', 'RabbitMQ', 'Alembic', 'pytest', 'Docker', 'Flutter'],
     destaque: true,
+    figura: {
+      titulo: 'Idempotency at the consumer',
+      legenda:
+        'Delivery is at-least-once: the same event can arrive twice. The worker keeps the event_ids it has seen and ignores the repeat; what keeps failing goes to the DLQ, not to a lost log line.',
+    },
     capturas: [
       {
         src: '/fieldflow-login.png',
@@ -145,6 +217,17 @@ export const projetosEn: Projeto[] = [
       'A directed-graph library with a single API over two internal representations, validated on a similarity network of 156 thousand Spotify artists and 300 thousand real collaborations.',
     areas: ['dados'],
     destaque: true,
+    figura: {
+      titulo: 'Centrality is not popularity',
+      legenda:
+        'Label Propagation separates the communities. Eigenvector Centrality ranks first whoever crosses the border between them, not whoever piles up connections inside one.',
+    },
+    numeros: [
+      { valor: '156,422', rotulo: 'artists' },
+      { valor: '300,379', rotulo: 'real collaborations' },
+      { valor: '≈229 s', rotulo: 'full pipeline over the whole network' },
+      { valor: '2.44 × 10¹⁰', rotulo: 'cells the matrix would need' },
+    ],
     papel: 'Team of five. The library\'s relationship-query layer, plus writing and reviewing the paper.',
     stack: ['Python 3', 'Label Propagation', 'Eigenvector Centrality', 'Gephi'],
     links: {},

@@ -3,43 +3,40 @@
 import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
-import type { Projeto } from "@/content/projetos";
 import { conteudo, textos, type Idioma } from "@/lib/i18n";
 import { AreaFilter, type FiltroArea } from "./AreaFilter";
+import { CabecalhoSecao } from "./CabecalhoSecao";
 import { ProjectCard } from "./ProjectCard";
-import { SectionTitle } from "./SectionTitle";
-
-const destaquesPorIdioma: Record<Idioma, Projeto[]> = {
-  pt: conteudo.pt.projetos.filter((projeto) => projeto.destaque),
-  en: conteudo.en.projetos.filter((projeto) => projeto.destaque),
-};
 
 // Param inválido cai em "Todos" silenciosamente.
 function filtroDaUrl(param: string | null): FiltroArea {
   return param === "dados" || param === "dev" ? param : "todos";
 }
 
-function contarPorFiltro(destaques: Projeto[]): Record<FiltroArea, number> {
-  return {
-    todos: destaques.length,
-    dados: destaques.filter((p) => p.areas.includes("dados")).length,
-    dev: destaques.filter((p) => p.areas.includes("dev")).length,
-  };
-}
-
+/*
+ * Grade de projetos com o filtro de área no URL (?area=dev|dados). A
+ * numeração das figuras vem da ordem do conteúdo, não da grade filtrada:
+ * "fig. 03" é sempre o mesmo projeto, e a stack usa esses números.
+ */
 export function ProjectsSection({ idioma }: { idioma: Idioma }) {
   const router = useRouter();
   const pathname = usePathname();
   const filtro = filtroDaUrl(useSearchParams().get("area"));
 
-  const destaques = destaquesPorIdioma[idioma];
+  const destaques = useMemo(
+    () => conteudo[idioma].projetos.filter((projeto) => projeto.destaque),
+    [idioma],
+  );
   const t = textos[idioma].projetos;
 
-  // Contadores só aparecem se os lados forem equilibrados; um lado muito menor
-  // que o outro enfraquece a tese e é melhor não quantificar.
-  const contagens = contarPorFiltro(destaques);
-  const contagensEquilibradas =
-    Math.abs(contagens.dados - contagens.dev) <= 1 ? contagens : undefined;
+  const contagens = useMemo(
+    () => ({
+      todos: destaques.length,
+      dados: destaques.filter((p) => p.areas.includes("dados")).length,
+      dev: destaques.filter((p) => p.areas.includes("dev")).length,
+    }),
+    [destaques],
+  );
 
   const mudarFiltro = useCallback(
     (proximo: FiltroArea) => {
@@ -57,41 +54,28 @@ export function ProjectsSection({ idioma }: { idioma: Idioma }) {
     [filtro, destaques],
   );
 
-  // Contagem ímpar deixaria o último card sozinho com meia linha vazia. Em vez
-  // disso o primeiro (o mais forte, pela ordem do conteúdo) ocupa a largura
-  // toda e os demais fecham a grade em pares.
+  // Contagem ímpar deixaria o último card sozinho: o primeiro ocupa a linha.
   const primeiroLargo = visiveis.length % 2 === 1;
 
   return (
-    // Só a variável --accent muda com o filtro; o resto da seção fica neutro.
-    <section
-      aria-labelledby="projetos-titulo"
-      data-accent={filtro === "todos" ? undefined : filtro}
-      className="flex flex-col gap-[22px]"
-    >
-      <SectionTitle
+    <section id="projetos" data-regua={`01 ${t.titulo}`} aria-labelledby="projetos-titulo" className="flex flex-col gap-9">
+      <CabecalhoSecao
         id="projetos-titulo"
         numero="01"
+        titulo={t.titulo}
         meta={
-          // Ocupa o lugar do metadado da direita no cabeçalho do design
-          <p aria-live="polite" className="font-mono text-xs text-faint">
+          <p aria-live="polite" className="pb-1 font-mono text-[11.5px] text-faint">
             {visiveis.length} {visiveis.length === 1 ? t.umProjeto : t.variosProjetos}
           </p>
         }
-      >
-        {t.titulo}
-      </SectionTitle>
-
-      <AreaFilter
-        valor={filtro}
-        aoMudar={mudarFiltro}
-        idioma={idioma}
-        contagens={contagensEquilibradas}
       />
 
-      {/* reducedMotion="user" corta deslize e re-layout sob prefers-reduced-motion */}
+      <div>
+        <AreaFilter valor={filtro} aoMudar={mudarFiltro} idioma={idioma} contagens={contagens} />
+      </div>
+
       <MotionConfig reducedMotion="user">
-        <motion.ul layout className="grid gap-3.5 sm:grid-cols-2">
+        <motion.ul layout className="grid gap-x-10 gap-y-16 lg:grid-cols-2">
           <AnimatePresence mode="popLayout" initial={false}>
             {visiveis.map((projeto, indice) => {
               const largo = primeiroLargo && indice === 0;
@@ -99,13 +83,18 @@ export function ProjectsSection({ idioma }: { idioma: Idioma }) {
                 <motion.li
                   key={projeto.slug}
                   layout
-                  initial={{ opacity: 0, scale: 0.96 }}
+                  initial={{ opacity: 0, scale: 0.97 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.96 }}
-                  transition={{ duration: 0.28 }}
-                  className={largo ? "sm:col-span-2" : undefined}
+                  exit={{ opacity: 0, scale: 0.97 }}
+                  transition={{ duration: 0.3 }}
+                  className={largo ? "lg:col-span-2" : undefined}
                 >
-                  <ProjectCard projeto={projeto} idioma={idioma} largo={largo} indice={indice} />
+                  <ProjectCard
+                    projeto={projeto}
+                    idioma={idioma}
+                    numero={destaques.indexOf(projeto) + 1}
+                    largo={largo}
+                  />
                 </motion.li>
               );
             })}

@@ -10,6 +10,8 @@ export type Perfil = {
   posicionamentoRico: Array<{ texto: string; area?: Area; enfase?: boolean }>
   disponibilidade: string
   cidade: string
+  // Leitura de posição na barra do topo e no rodapé, no tom de instrumento.
+  coordenadas: string
   formacaoCurta: string
   idiomasResumo: string
   sobre: string[]
@@ -52,6 +54,7 @@ export const perfil: Perfil = {
   disponibilidade: 'estagiário na Business Tec · Java + PrimeFaces',
 
   cidade: 'Belo Horizonte',
+  coordenadas: '19,92° S · 43,94° O',
   formacaoCurta: 'Eng. de Software · PUC Minas · Conclusão no fim de 2027',
   idiomasResumo: 'PT nativo · EN avançado',
 

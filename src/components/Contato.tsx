@@ -1,41 +1,42 @@
 import { conteudo, textos, type Idioma } from "@/lib/i18n";
+import { Assinatura } from "./Assinatura";
+import { CabecalhoSecao } from "./CabecalhoSecao";
+import { EnvioEmail } from "./EnvioEmail";
 import { HoraLocal } from "./HoraLocal";
 
 /*
- * Fechamento do design: uma frase grande em serifa itálica e o e-mail como o
- * único botão da tela. Não leva numeral de seção — no design essa parte é o
- * desfecho, não mais um item da lista.
- *
- * O miolo da frase era dourado; com a paleta neutra, o destaque vira peso:
- * a frase é light e o trecho destacado é regular.
+ * Fechamento: a frase grande (o miolo em serifa itálica), o e-mail como
+ * manchete com o botão que "publica" o endereço, os currículos e o rodapé
+ * com a leitura de posição. Por último, o primeiro nome em matriz de pontos,
+ * enorme e apagado, que acende sob o cursor.
  */
 export function Contato({ idioma }: { idioma: Idioma }) {
   const { perfil } = conteudo[idioma];
   const t = textos[idioma].contato;
+  const primeiroNome = perfil.nome.split(" ")[0];
 
   return (
     <>
-      <section aria-labelledby="contato-titulo" className="flex flex-col gap-[22px] pt-14 text-center">
-        <h2 id="contato-titulo" className="sr-only">
-          {t.titulo}
-        </h2>
+      <section
+        id="contato"
+        data-regua={`04 ${t.titulo}`}
+        aria-labelledby="contato-titulo"
+        className="flex flex-col gap-10"
+      >
+        <CabecalhoSecao id="contato-titulo" numero="04" titulo={t.titulo} />
 
-        <p className="font-serif text-[34px] leading-[1.15] font-light tracking-[-0.01em] text-balance italic sm:text-[44px]">
+        <p className="max-w-[20ch] text-[clamp(2.2rem,5.6vw,4.6rem)] leading-[1.02] font-semibold tracking-[-0.04em] text-balance [font-stretch:85%]">
           {t.frase.inicio}
-          <span className="font-normal">{t.frase.destaque}</span>
+          <span className="font-serif font-normal tracking-[-0.02em] text-signal italic">{t.frase.destaque}</span>
           {t.frase.fim}
         </p>
 
-        <div>
-          <a
-            href={`mailto:${perfil.links.email}`}
-            className="accent-transition inline-block rounded-[10px] bg-foreground px-[26px] py-[13px] text-[15px] font-medium break-all text-background no-underline hover:bg-white"
-          >
-            {perfil.links.email}
-          </a>
+        <div className="flex flex-col gap-4">
+          <p className="font-mono text-[11px] tracking-[0.08em] text-faint uppercase">↳ {t.escreva}</p>
+          <EnvioEmail email={perfil.links.email} copiar={t.copiar} copiado={t.copiado} />
         </div>
 
-        <p className="font-mono text-[11.5px] leading-[1.8] text-faint">
+        <p className="font-mono text-[12px] leading-[1.8] text-faint">
           {t.curriculos}{" "}
           {perfil.curriculos.map(({ rotulo, href }, i) => (
             <span key={href}>
@@ -44,7 +45,7 @@ export function Contato({ idioma }: { idioma: Idioma }) {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline decoration-border-strong hover:text-gold hover:decoration-gold"
+                className="text-muted underline decoration-border-strong hover:text-signal hover:decoration-signal"
               >
                 {rotulo}
               </a>
@@ -53,35 +54,24 @@ export function Contato({ idioma }: { idioma: Idioma }) {
         </p>
       </section>
 
-      {/* Assinatura de encerramento: o primeiro nome em contorno gigante,
-          full-bleed e decorativo (aria-hidden, o h2 sr-only acima já nomeia
-          a seção). overflow-clip + overflow-x clip no body evitam scroll
-          horizontal do truque w-screen. */}
-      <div
-        aria-hidden
-        className="pointer-events-none relative left-1/2 w-screen -translate-x-1/2 overflow-clip select-none"
-      >
-        <p className="contorno-gigante text-center text-[24vw] leading-[0.9] font-semibold tracking-[-0.04em] whitespace-nowrap sm:text-[190px]">
-          {perfil.nome.split(" ")[0].toUpperCase()}
-        </p>
-      </div>
+      <footer className="flex flex-col gap-2 pt-10">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 border-t border-border-soft pt-6 font-mono text-[11.5px] leading-[1.6] text-faint">
+          <span className="tabular-nums">
+            {perfil.cidade} · {perfil.coordenadas}
+            <HoraLocal locale={idioma === "pt" ? "pt-BR" : "en-GB"} />
+          </span>
+          <span>{t.feito}</span>
+          <span className="flex gap-4">
+            <a href={perfil.links.github} target="_blank" rel="noopener noreferrer" className="hover:text-signal">
+              GitHub ↗
+            </a>
+            <a href={perfil.links.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-signal">
+              LinkedIn ↗
+            </a>
+          </span>
+        </div>
 
-      <footer className="flex flex-wrap items-baseline justify-between gap-5 border-t border-border-soft pt-[26px] font-mono text-[11.5px] leading-[1.6] text-fainter">
-        <span>
-          {t.cidade}
-          <HoraLocal locale={idioma === "pt" ? "pt-BR" : "en-GB"} />
-        </span>
-        <span>
-          <a
-            href={perfil.links.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline decoration-border-strong hover:text-gold hover:decoration-gold"
-          >
-            {t.codigoNoGitHub}
-          </a>
-          <span aria-hidden className="text-dim"> · </span>© {new Date().getFullYear()}
-        </span>
+        <Assinatura texto={primeiroNome.toUpperCase()} />
       </footer>
     </>
   );
